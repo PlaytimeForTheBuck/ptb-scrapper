@@ -2,6 +2,8 @@ require 'net/http'
 require 'nokogirl'
 
 class ReviewsScrapper < Scrapper
+  attr_reader :last_page, :last_page_url
+
   def self.url(app_id, page = 1)
     offset = (page-1)*10
     "http://steamcommunity.com/app/#{app_id}/homecontent/?l=english&userreviewsoffset=#{offset}&p=#{page}&itemspage=2&screenshotspage=2&videospage=2&artpage=2&allguidepage=2&webguidepage=2&integratedguidepage=2&discussionspage=2&appHubSubSection=10&browsefilter=toprated&filterLanguage=default&searchText="
@@ -19,7 +21,8 @@ class ReviewsScrapper < Scrapper
       page = 1
 
       begin
-        raw_page = Net::HTTP.get URI ReviewsScrapper.url(game.steam_app_id, page)
+        page_url = @last_page_url = ReviewsScrapper.url(game.steam_app_id, page)
+        raw_page = @last_page = Net::HTTP.get URI page_url
 
         doc = Nokogiri::HTML raw_page
 

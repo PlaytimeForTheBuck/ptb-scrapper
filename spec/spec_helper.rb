@@ -35,4 +35,8 @@ RSpec.configure do |config|
   # Factory girl
   config.before(:suite) { FactoryGirl.reload }
   config.include FactoryGirl::Syntax::Methods
+
+  Mail.defaults do
+    delivery_method :test
+  end
 end

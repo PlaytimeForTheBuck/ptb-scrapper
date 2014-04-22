@@ -2,7 +2,7 @@ require 'net/http'
 require 'nokogirl'
 
 class GamesScrapper < Scrapper
-
+  attr_reader :last_page, :last_page_url
 
   def initialize(games)
     @games = games
@@ -23,7 +23,8 @@ class GamesScrapper < Scrapper
       current_request_games = []
 
       begin
-        raw_page = Net::HTTP.get(URI GamesScrapper.url(page))
+        page_url = @last_page_url = GamesScrapper.url(page)
+        raw_page = @last_page = Net::HTTP.get(URI @last_page_url)
       rescue
         raise NoServerConnection
       end
@@ -132,7 +133,6 @@ class GamesScrapper < Scrapper
     yield current_request_games if block_given?
     end while there_is_next_page
   end
-
 
   private
 

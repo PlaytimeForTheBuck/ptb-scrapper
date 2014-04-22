@@ -7,6 +7,7 @@ gem 'shoulda' # For better testing
 gem 'guard' # For continuous testing
 gem 'guard-rspec', require: false, tag: 'v3.1.0', git: 'https://github.com/guard/guard-rspec.git'
 gem 'nokogirl'
+gem 'mail'
 gem 'yell'
 gem 'webmock'
 gem "fakefs", :require => "fakefs/safe"
