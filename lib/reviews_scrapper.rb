@@ -28,28 +28,32 @@ class ReviewsScrapper < Scrapper
 
         if not raw_page.blank?
           doc.search('.apphub_Card').each do |e_review|
-            e_thumb = e_review.search('.thumb img').first
-            raise InvalidHTML if e_thumb.nil?
-            src = e_thumb['src']
-            raise InvalidHTML if src.nil?
-            if src.match('icon_thumbsUp')
-              positivity = true
-            elsif src.match('icon_thumbsDown')
-              positivity = false
-            else
-              raise InvalidHTML
-            end
+            begin
+              e_thumb = e_review.search('.thumb img').first
+              raise InvalidHTML if e_thumb.nil?
+              src = e_thumb['src']
+              raise InvalidHTML if src.nil?
+              if src.match('icon_thumbsUp')
+                positivity = true
+              elsif src.match('icon_thumbsDown')
+                positivity = false
+              else
+                raise InvalidHTML
+              end
 
-            e_hours = e_review.search('.hours').first
-            raise InvalidHTML if e_hours.nil?
-            hours = e_hours.content.match(/^[0-9]+\.?[0-9]*/)
-            raise InvalidHTML if hours.nil?
-            hours = Float(hours[0])
+              e_hours = e_review.search('.hours').first
+              raise InvalidReview if e_hours.nil?
+              hours = e_hours.content.match(/^[0-9]+\.?[0-9]*/)
+              raise InvalidHTML if hours.nil?
+              hours = Float(hours[0])
 
-            if positivity
-              array_positive_reviews.push hours
-            else
-              array_negative_reviews.push hours 
+              if positivity
+                array_positive_reviews.push hours
+              else
+                array_negative_reviews.push hours 
+              end
+            rescue InvalidReview => e
+              # We just ignore it
             end
           end
 
@@ -57,7 +61,7 @@ class ReviewsScrapper < Scrapper
 
           page += 1
         end
-      end while not raw_page.blank?
+      end while not raw_page.blank? and (array_positive_reviews.size + array_negative_reviews.size < MAX_REVIEWS)
 
       game.array_positive_reviews = array_positive_reviews
       game.array_negative_reviews = array_negative_reviews

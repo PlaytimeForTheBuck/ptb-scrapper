@@ -16,8 +16,9 @@ class GamesScrapper < Scrapper
     "http://store.steampowered.com/search/results?category1=998&sort_by=Name&sort_order=ASC&category1=998&cc=#{country}&v5=1&page=#{page}"
   end
 
-  def scrap
-    page = 1
+  def scrap(options = {})
+    options = {initial_page: 1}.merge(options)
+    page = options[:initial_page]
 
     begin # end while there is not next page
       current_request_games = []
@@ -26,7 +27,7 @@ class GamesScrapper < Scrapper
         page_url = @last_page_url = GamesScrapper.url(page)
         raw_page = @last_page = Net::HTTP.get(URI @last_page_url)
       rescue
-        raise NoServerConnection
+        raise NoServerConnection, page
       end
 
       doc = Nokogiri::HTML raw_page
@@ -92,11 +93,12 @@ class GamesScrapper < Scrapper
           end
 
           raise InvalidGame if price.nil?
-          raise InvalidGame if price == 'Free demo'
+          price = price.downcase.gsub(/[^a-z0-9. ]/, ' ').gsub(/\s+/, ' ').strip
+          raise InvalidGame if price =~ /demo/i
 
-          means_its_free = ['Free to Play', 'Free', 'Third-party']
-          price = nil if means_its_free.include? price
-          sale_price = nil if means_its_free.include? sale_price
+          means_its_free = ['free to play', 'play for free', 'free', 'third party']
+          price = nil if price =~ /free/i or means_its_free.include? price
+          sale_price = nil if sale_price =~ /free/i or means_its_free.include? sale_price
 
           begin
             price = price.blank? ? nil : Float(price)

@@ -80,7 +80,8 @@ class Game
 
       all.select do |game|
         date     = game.reviews_updated_at
-        launched = game.launch_date
+        # If no launch date we treat it like a year ago
+        launched = game.launch_date ? game.launch_date : year_ago
 
         # The game was never updated?
         if date == nil
@@ -161,7 +162,7 @@ class Game
     if self.name.blank? or
     self.steam_app_id.blank? or
     # self.price.blank? or
-    self.launch_date.blank? or
+    # self.launch_date.blank? or
     not array_positive_reviews.all_numeric? or
     not array_negative_reviews.all_numeric?
       false

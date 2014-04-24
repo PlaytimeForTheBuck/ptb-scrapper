@@ -4,4 +4,5 @@ class Scrapper
   class NoServerConnection < StandardError; end
   class InvalidHTML < StandardError; end
   class InvalidGame < StandardError; end
+  class InvalidReview < StandardError; end
 end

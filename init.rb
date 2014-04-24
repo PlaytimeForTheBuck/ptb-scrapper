@@ -12,9 +12,13 @@ require_relative 'lib/scrapping_overlord'
 require_relative 'lib/games_collection'
 require_relative 'models/game'
 
-Log = Yell.new STDOUT
+Log = Yell.new do |l|
+  l.adapter :datefile, 'log/everything.log', level: [:debug, :info, :warn, :error, :fatal]
+end
 
 NOTIFICATIONS_EMAIL_TO = 'zequez@gmail.com'
+
+MAX_REVIEWS = 1000
 
 Mail.defaults do
 	delivery_method :smtp, enable_starttls_auto: false

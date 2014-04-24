@@ -58,6 +58,15 @@ describe ReviewsScrapper do
         game.array_reviews.size.should eq 10
       end
 
+      it 'ignores invalid review without played time' do
+        game = build :game
+        scrapper = ReviewsScrapper.new [game]
+        stub_page ReviewsScrapper.url(game.steam_app_id), 'reviews_single_page_one_without_hours'
+        stub_empty ReviewsScrapper.url(game.steam_app_id, 2)
+        scrapper.scrap
+        game.array_reviews.size.should eq 9
+      end
+
       it 'fills the positive and negative reviews' do
         game = build :game
         scrapper = ReviewsScrapper.new [game]

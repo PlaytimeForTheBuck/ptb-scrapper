@@ -61,10 +61,10 @@ describe Game do
       game.should_not be_valid
     end
 
-    it 'requires a launch date' do
-      game.launch_date = nil
-      game.should_not be_valid
-    end
+    # it 'requires a launch date' do
+    #   game.launch_date = nil
+    #   game.should_not be_valid
+    # end
 
     # it 'requires a price' do
     #   game.price = nil

@@ -91,6 +91,22 @@ describe GamesScrapper do
       it { game.sale_price.should eq 4.89 }
     end
 
+    context 'game with weird free price markup' do
+      it 'should not raise any error with play for free!' do
+        stub_page GamesScrapper.url, 'games_page_32_with_conflicting_html'
+        scrapper = GamesScrapper.new []
+        scrapper.scrap
+        scrapper.games.size.should eq 24
+      end
+
+      it 'should not raise any error with Third-party' do
+         stub_page GamesScrapper.url, 'games_single_page_third_party_price'
+          scrapper = GamesScrapper.new []
+          scrapper.scrap
+          scrapper.games.size.should eq 25
+      end
+    end
+
     context 'cannot connect to the server' do
       it 'should raise an exception' do
         stub_request(:get, GamesScrapper.url).to_raise Timeout::Error

@@ -27,18 +27,23 @@ class ScrappingOverlord
 
     Log.info "Scrapping games: #{games.size} are the current games!"
     Log.info '============================================'
-
     begin
-      scrapper.scrap do |page_games|
-        Log.info "#{page_games.size} games in this page #{scrapper.last_page_url}"
+      begin
+        scrapper.scrap do |page_games|
+          Log.info "#{page_games.size} games in this page #{scrapper.last_page_url}"
+        end
+      rescue Scrapper::InvalidHTML => e
+        Log.error "ERROR: Invalid HTML!"
+        send_error_email e, scrapper.last_page, scrapper.last_page_url
       end
-    rescue Scrapper::InvalidHTML => e
-      Log.error "ERROR: Invalid HTML!"
-      send_error_email e, scrapper.last_page, scrapper.last_page_url
+    rescue Scrapper::NoServerConnection => e
+      Log.error 'ERROR: No server connection on page next to the previous page'
     end
   end
 
-  def scrap_reviews
+  def scrap_reviews(options = {})
+    options = {save_after_each_game: false}.merge(options)
+
     games = Game.get_for_reviews_updating
     scrapper = ReviewsScrapper.new games
 
@@ -46,8 +51,16 @@ class ScrappingOverlord
     Log.info '============================================'
 
     begin
+      previous_game = nil
       scrapper.scrap do |game, page|
         Log.info "#{game.name} / Page #{page}"
+        if game != previous_game
+          if previous_game and options[:save_after_each_game]
+            previous_game.save
+            Game.save_to_file
+          end
+          previous_game = game
+        end
       end
     rescue Scrapper::InvalidHTML => e
       Log.error "ERROR: Invalid HTML!"
@@ -66,13 +79,15 @@ class ScrappingOverlord
 
   def send_error_email(exception, faulty_page, faulty_page_url)
     time = Time.now.strftime '%Y-%m-%d.%H-%M-%S'
-    page_attachment_name = faulty_page_url.gsub(/[^\w\.]/, '_')
+    page_attachment_name = faulty_page_url.gsub(/[^\w\.]/, '_')[0, 100]
     page_attachment_path = "tmp/#{time}-#{page_attachment_name}.html"
     
     FileUtils.mkdir 'tmp' if not File.directory? 'tmp'
     File.open page_attachment_path, 'w+' do |f|
       f.write faulty_page
     end
+
+    backtrace = $!.backtrace.join("\n");
 
     Mail.deliver do
       from NOTIFICATIONS_EMAIL_FROM
@@ -86,7 +101,7 @@ class ScrappingOverlord
 
         #{faulty_page_url}
 
-        #{$!.backtrace}
+        #{backtrace}
       }
 
       add_file page_attachment_path
