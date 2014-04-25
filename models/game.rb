@@ -312,7 +312,7 @@ class Game
     if array_positive_reviews.empty?
       self.average_time_positive = 0
     else
-      self.average_time_positive = array_positive_reviews.reduce(:+) / Float(array_positive_reviews.size)
+      self.average_time_positive = (array_positive_reviews.reduce(:+) / Float(array_positive_reviews.size)).round(2)
     end
   end
 
@@ -320,7 +320,7 @@ class Game
     if array_negative_reviews.empty?
       self.average_time_negative = 0
     else
-      self.average_time_negative = array_negative_reviews.reduce(:+) / Float(array_negative_reviews.size)
+      self.average_time_negative = (array_negative_reviews.reduce(:+) / Float(array_negative_reviews.size)).round(2)
     end
   end
 
@@ -328,7 +328,7 @@ class Game
     if array_reviews.empty?
       self.average_time = 0
     else
-      self.average_time = array_reviews.reduce(:+) / Float(array_reviews.size)
+      self.average_time = (array_reviews.reduce(:+) / Float(array_reviews.size)).round(2)
     end
   end
 
