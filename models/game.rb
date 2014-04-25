@@ -236,7 +236,7 @@ class Game
   end
 
   def array_reviews
-    @array_reviews ||= array_positive_reviews.dup.concat array_negative_reviews
+    array_positive_reviews.dup.concat array_negative_reviews
   end
 
   def on_sale?
