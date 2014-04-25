@@ -276,7 +276,7 @@ class Game
   # If game is valid adds it to the @@dataset
   def save
     if valid?
-      if not array_reviews.empty? # I don't like unless
+      # if not array_reviews.empty? # I don't like unless
         calculate_average_time_positive
         calculate_average_time_negative
         calculate_average_time
@@ -285,7 +285,7 @@ class Game
         calculate_centiles
         calculate_positive_reviews_count
         calculate_negative_reviews_count
-      end
+      # end
 
       # Now we add them to the "database" of games
 

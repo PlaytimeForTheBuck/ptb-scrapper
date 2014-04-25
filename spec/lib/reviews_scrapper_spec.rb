@@ -108,6 +108,17 @@ describe ReviewsScrapper do
       end
     end
 
+    context 'there is a review flagged as abusive' do
+      it 'should ignore it' do
+        game = build :game
+        scrapper = ReviewsScrapper.new [game]
+        stub_page ReviewsScrapper.url(game.steam_app_id), 'reviews_flagged_as_abusive'
+        stub_empty ReviewsScrapper.url(game.steam_app_id, 2)
+        scrapper.scrap
+        game.array_reviews.size.should eq 1
+      end
+    end
+
 
     context 'there are many pages' do
       it 'reads the reviews from each page' do

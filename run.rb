@@ -21,3 +21,7 @@ if SCRAP_REVIEWS
 		scrapper.save
 	end
 end
+
+if not SCRAP_REVIEWS and not SCRAP_GAMES and SAVE_GAMES
+	scrapper.save
+end

@@ -29,6 +29,8 @@ class ReviewsScrapper < Scrapper
         if not raw_page.blank?
           doc.search('.apphub_Card').each do |e_review|
             begin
+              e_abusive = e_review.search('.UserReviewCardContent_FlaggedByDeveloper').first
+              raise InvalidReview if not e_abusive.nil?
               e_thumb = e_review.search('.thumb img').first
               raise InvalidHTML if e_thumb.nil?
               src = e_thumb['src']
