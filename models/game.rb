@@ -19,7 +19,8 @@ class Game
   @all = []
 
   class << self 
-    attr_accessor :all
+    attr_accessor :all, :to_summary_json
+    alias_method :to_summary_json?, :to_summary_json 
     attr_reader :dataset
  
     # Creates a Game for each hash in data_hashes
@@ -37,12 +38,23 @@ class Game
       @file = file
       attributes = @file.size >= 2 ? JSON.parse(@file.read, symbolize_names: true) : []
       set_dataset(attributes)
+      Log.info 'Games file parsed'
     end
 
     def save_to_file
       @file.truncate 0
       @file.rewind
       @file.write @all.to_json
+      Log.info 'Saved to file'
+    end
+
+    def save_summary_to_file(file)
+      @to_summary_json = true
+      file.truncate 0
+      file.rewind
+      file.write @all.to_json
+      @to_summary_json = false
+      Log.info 'Saved summary to file'
     end
 
     # Just deletes the ghetto database
@@ -361,7 +373,31 @@ class Game
   #################################
 
   def to_json(a = nil)
-    JSON.generate attributes
+    if Game.to_summary_json?
+      to_summary_json
+    else
+      JSON.generate attributes
+    end
+  end
+
+  def to_summary_json(a = nil)
+    attrs = attributes.dup
+    attrs.delete(:array_negative_reviews)
+    attrs.delete(:array_positive_reviews)
+
+    if not attrs[:game_updated_at].nil?
+      attrs[:game_updated_at] = (attrs[:game_updated_at].to_f * 1000).truncate
+    end
+
+    if not attrs[:reviews_updated_at].nil?
+      attrs[:reviews_updated_at] = (attrs[:reviews_updated_at].to_f * 1000).truncate
+    end
+
+    if not attrs[:launch_date].nil?
+      attrs[:launch_date] = (attrs[:launch_date].to_f * 1000).truncate
+    end
+
+    JSON.generate attrs
   end
 
   def ==(game)

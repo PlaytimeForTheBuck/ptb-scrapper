@@ -3,12 +3,14 @@ require 'fileutils'
 class ScrappingOverlord
   NOTIFICATIONS_EMAIL_FROM = 'PlaytimeForTheBuck ScrapperBot <scrapper@playtimeforthebuck.com>'
 
-  def initialize(files_path = 'db')
+  def initialize(files_path = 'db', summary_files_path = 'summary_db')
     @file_name = Time.now.strftime '%Y-%m-%d.%H-%M-%S'
     file_extension = 'json'
     file_path = "#{files_path}/#{@file_name}.#{file_extension}"
+    summary_file_path = "#{summary_files_path}/#{@file_name}.#{file_extension}"
 
     FileUtils.mkdir files_path if not File.directory? files_path
+    FileUtils.mkdir summary_files_path if not File.directory? summary_files_path
 
     last_file = Dir.glob("#{files_path}/*").last
     if last_file
@@ -17,8 +19,9 @@ class ScrappingOverlord
       FileUtils.touch file_path
     end
 
-    file = File.open file_path, 'a+'
-    Game.set_file file
+    @file = File.open file_path, 'a+'
+    @summary_file = File.open summary_file_path, 'w'
+    Game.set_file @file
   end
 
   def scrap_games
@@ -58,6 +61,7 @@ class ScrappingOverlord
           if previous_game and options[:save_after_each_game]
             previous_game.save
             Game.save_to_file
+            Game.save_summary_to_file(@summary_file)
           end
           previous_game = game
         end
@@ -73,6 +77,7 @@ class ScrappingOverlord
       game.save!
     end
     Game.save_to_file
+    Game.save_summary_to_file(@summary_file)
   end
 
   private
