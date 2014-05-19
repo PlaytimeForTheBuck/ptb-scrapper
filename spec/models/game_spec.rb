@@ -275,6 +275,13 @@ describe Game do
           game.save!
           game.reviews_updated_at.should eq last_time
         end
+
+        it "sets the playtime deviation" do
+          game.array_positive_reviews = [100,100,100]
+          game.array_negative_reviews = [1,1,1]
+          game.save!
+          game.playtime_deviation.should eq Math.sqrt((100*100+100*100+100*100+1*1+1*1+1*1)/6)
+        end
       end
     end
   end

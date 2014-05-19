@@ -150,7 +150,8 @@ class Game
      price
      reviews_updated_at
      game_updated_at
-     sale_price).each do |attr|
+     sale_price
+     playtime_deviation).each do |attr|
 
     define_method attr do 
       @attributes[attr.to_sym]
@@ -297,6 +298,7 @@ class Game
         calculate_centiles
         calculate_positive_reviews_count
         calculate_negative_reviews_count
+        calculate_playtime_deviation
       # end
 
       # Now we add them to the "database" of games
@@ -368,6 +370,14 @@ class Game
     self.negative_reviews = array_negative_reviews.size
   end
 
+  def calculate_playtime_deviation
+    if self.array_reviews.empty?
+      self.playtime_deviation = nil
+    else
+      self.playtime_deviation = Math.sqrt(self.array_reviews.map{|x| x**2}.reduce(:+) / self.array_reviews.size)
+    end
+  end
+
   #################################
   ## Utilities ####################
   #################################
@@ -384,6 +394,11 @@ class Game
     attrs = attributes.dup
     attrs.delete(:array_negative_reviews)
     attrs.delete(:array_positive_reviews)
+    attrs.delete(:reviews_centile_1)
+    attrs.delete(:reviews_centile_2)
+    attrs.delete(:reviews_centile_3)
+    attrs.delete(:reviews_centile_4)
+    attrs.delete(:reviews_centile_5)
 
     if not attrs[:game_updated_at].nil?
       attrs[:game_updated_at] = (attrs[:game_updated_at].to_f * 1000).truncate
