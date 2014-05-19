@@ -97,7 +97,7 @@ class GamesScrapper < Scrapper
           raise InvalidGame if price =~ /demo/i
 
           means_its_free = ['free to play', 'play for free', 'free', 'third party']
-          price = nil if price =~ /free/i or means_its_free.include? price
+          price = 0 if price =~ /free/i or means_its_free.include? price
           sale_price = nil if sale_price =~ /free/i or means_its_free.include? sale_price
 
           begin

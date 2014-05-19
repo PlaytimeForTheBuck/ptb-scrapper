@@ -390,7 +390,7 @@ class Game
     end
   end
 
-  def to_summary_json(a = nil)
+  def summary_attrs
     attrs = attributes.dup
     attrs.delete(:array_negative_reviews)
     attrs.delete(:array_positive_reviews)
@@ -399,6 +399,8 @@ class Game
     attrs.delete(:reviews_centile_3)
     attrs.delete(:reviews_centile_4)
     attrs.delete(:reviews_centile_5)
+
+    # attrs[:playtime_deviation_percentage] = ((attrs[:playtime_deviation] / attrs[:average_time] - 1) * 100).floor / 100
 
     if not attrs[:game_updated_at].nil?
       attrs[:game_updated_at] = (attrs[:game_updated_at].to_f * 1000).truncate
@@ -412,7 +414,11 @@ class Game
       attrs[:launch_date] = (attrs[:launch_date].to_f * 1000).truncate
     end
 
-    JSON.generate attrs
+    attrs
+  end
+
+  def to_summary_json(a = nil)
+    JSON.generate summary_attrs
   end
 
   def ==(game)

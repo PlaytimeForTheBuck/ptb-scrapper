@@ -542,4 +542,38 @@ describe Game do
       [game1, game2].should eq [game3, game4]
     end
   end
+
+  describe '#summary_attrs' do
+    it 'should return without reviews array' do
+      game = build :game
+      game.array_positive_reviews = [1,2,3]
+      game.array_negative_reviews = [4,5,6]
+      game.save!
+      game.summary_attrs.should_not have_key :array_negative_reviews
+      game.summary_attrs.should_not have_key :array_positive_reviews
+    end
+
+    it 'should not return centiles' do
+      game = build :game
+      game.array_positive_reviews = [1,2,3]
+      game.array_negative_reviews = [4,5,6]
+      game.save!
+      game.summary_attrs.should_not have_key :reviews_centile_1
+      game.summary_attrs.should_not have_key :reviews_centile_2
+      game.summary_attrs.should_not have_key :reviews_centile_3
+      game.summary_attrs.should_not have_key :reviews_centile_4
+      game.summary_attrs.should_not have_key :reviews_centile_5
+    end
+
+    # it 'should return with playtime_deviation_percentage' do
+    #   game = build :game
+    #   game.array_positive_reviews = [1,2,3]
+    #   game.array_negative_reviews = [4,5,6]
+    #   game.save!
+    #   mean = (1+2+3+4+5+6) / 6
+    #   deviation = Math.sqrt((1*1+2*2+3*3+4*4+5*5+6*6)/6)
+    #   deviation_percentage = (mean/deviation * 100 - 1).floor / 100
+    #   game.summary_attrs[:playtime_deviation_percentage].should eq deviation_percentage
+    # end
+  end
 end
