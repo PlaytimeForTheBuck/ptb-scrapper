@@ -204,6 +204,7 @@ class Game
     self.launch_date = launch_date
     self.reviews_updated_at = reviews_updated_at
     self.game_updated_at = self.game_updated_at
+    self.categories_updated_at = self.categories_updated_at
   end
 
   def meta_score=(val)
@@ -236,6 +237,14 @@ class Game
   
   def game_updated_at=(val)
     attributes[:game_updated_at] = if val.blank?
+      nil
+    else
+      val.is_a?(String) ? Time.parse(val) : val
+    end
+  end
+
+  def categories_updated_at=(val)
+    attributes[:categories_updated_at] = if val.blank?
       nil
     else
       val.is_a?(String) ? Time.parse(val) : val

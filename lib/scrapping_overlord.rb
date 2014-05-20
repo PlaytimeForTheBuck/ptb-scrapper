@@ -87,7 +87,8 @@ class ScrappingOverlord
           Game.save_to_file
           Game.save_summary_to_file(@summary_file)
         end
-        Log.info "#{game.name} / Categories: #{data.join(',')}"
+        categories = data.nil? ? '???' : data.join(',')
+        Log.info "#{game.name} / Categories: #{data}"
       end
     rescue Scrapper::InvalidHTML => e
       Log.error 'ERROR: Invalid HTML!'
