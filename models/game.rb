@@ -151,6 +151,7 @@ class Game
      reviews_updated_at
      game_updated_at
      sale_price
+     categories
      playtime_deviation).each do |attr|
 
     define_method attr do 
@@ -198,6 +199,7 @@ class Game
     self.average_time_positive ||= 0
     self.array_positive_reviews ||= []
     self.array_negative_reviews ||= []
+    self.categories ||= []
     self.meta_score = meta_score
     self.price = price
     self.sale_price = sale_price
@@ -250,6 +252,10 @@ class Game
   def array_negative_reviews=(val)
     @array_reviews = nil
     attributes[:array_negative_reviews] = val.kind_of?(Array) ? val : []
+  end
+
+  def categories=(arr)
+    attributes[:categories] = arr[0...10]
   end
 
   def array_reviews

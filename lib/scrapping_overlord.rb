@@ -44,17 +44,22 @@ class ScrappingOverlord
     end
   end
 
-  def scrap_reviews(options = {})
+  def scrap_reviews(options = {}) # And categories
     options = {save_after_each_game: false}.merge(options)
 
     games = Game.get_for_reviews_updating
     scrapper = ReviewsScrapper.new games
+    categories_scrapper = CategoriesScrapper.new games
 
-    Log.info "Scrapping reviews: #{games.size} games to scrap!"
+    Log.info "Scrapping reviews and categories: #{games.size} games to scrap!"
     Log.info '============================================'
 
     begin
       previous_game = nil
+      categories_scrapper.scrap do |game, data, page|
+        Log.info "#{game.name} / Categories: #{data.join(',')}"
+      end
+
       scrapper.scrap do |game, data, page|
         Log.info "#{game.name} / Page #{page}"
         if game != previous_game

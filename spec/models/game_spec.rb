@@ -75,7 +75,24 @@ describe Game do
       game.price = 0
       game.should be_valid
     end
-  end 
+  end
+
+  describe '#categories' do
+    it 'should be an empty array if not set' do
+      game.categories.should eq []
+      game.attributes[:categories].should eq []
+    end
+
+    it 'should accept an array of categories' do
+      game.categories = ['abc', 'def', 'ghi']
+      game.categories.should eq ['abc', 'def', 'ghi']
+    end
+
+    it 'should be trimmed to 10 categories max' do
+      game.categories = %w{a b c d e f g h i j k l m n o p q r}
+      game.categories.should eq %w{a b c d e f g h i j}
+    end
+  end
 
   %W{positive negative}.each do |posneg|
     describe "#array_#{posneg}_reviews" do
