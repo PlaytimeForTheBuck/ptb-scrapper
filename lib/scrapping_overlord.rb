@@ -73,14 +73,20 @@ class ScrappingOverlord
     end
   end
 
-  def scrap_categories
+  def scrap_categories(autosave = false)
     games = Game.get_for_categories_updating
     scrapper = CategoriesScrapper.new games
 
     Log.info "Scrapping categories: #{games.size} games to scrap!"
     Log.info '============================================'
+    count = 0
     begin
       scrapper.scrap do |game, data, page|
+        count += 1
+        if autosave and count % 10 == 0 # Save every 10 games
+          Game.save_to_file
+          Game.save_summary_to_file(@summary_file)
+        end
         Log.info "#{game.name} / Categories: #{data.join(',')}"
       end
     rescue Scrapper::InvalidHTML => e

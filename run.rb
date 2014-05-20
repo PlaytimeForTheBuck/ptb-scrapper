@@ -24,7 +24,7 @@ if SCRAP_REVIEWS
 end
 
 if SCRAP_CATEGORIES
-  scrapper.scrap_categories
+  scrapper.scrap_categories(SAVE_GAMES)
 
   if SAVE_GAMES
     scrapper.save
