@@ -38,6 +38,16 @@ describe CategoriesScrapper do
       end
     end
 
+    context 'region locked' do
+      it 'should ignore the game' do
+        game = build :game
+        stub_game_request(game, 'categories_region_locked_error')
+        scrapper = CategoriesScrapper.new [game]
+        scrapper.scrap
+        game.categories.should eq nil
+      end
+    end
+
     context 'invalid markup' do
       it 'should raise an InvalidHTML error' do
         game = build :game

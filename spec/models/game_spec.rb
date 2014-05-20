@@ -78,9 +78,9 @@ describe Game do
   end
 
   describe '#categories' do
-    it 'should be an empty array if not set' do
-      game.categories.should eq []
-      game.attributes[:categories].should eq []
+    it 'should be nil if not set' do
+      game.categories.should eq nil
+      game.attributes[:categories].should eq nil
     end
 
     it 'should accept an array of categories' do

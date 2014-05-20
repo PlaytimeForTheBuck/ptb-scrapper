@@ -14,6 +14,11 @@ class CategoriesScrapper < Scrapper
   end
 
   def parse_page(doc, game, reviews)
+    e_error = doc.search('.error').first
+    if not e_error.nil? and e_error.text == 'This item is currently unavailable in your region'
+      return nil
+    end
+
     script_tags = doc.search('script')
 
     data = nil
