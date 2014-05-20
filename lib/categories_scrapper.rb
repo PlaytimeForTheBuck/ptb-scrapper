@@ -34,6 +34,7 @@ class CategoriesScrapper < Scrapper
 
   def save_data(tags_array, game)
     game.categories = tags_array
+    game.update_categories!
   end
 
   # This way we only scrap once per group

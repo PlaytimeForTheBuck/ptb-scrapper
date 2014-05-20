@@ -13,6 +13,8 @@ describe ScrappingOverlord do
     GamesScrapper.any_instance.stub(:last_page_url).and_return 'http://localhost.tuvieja'
     ReviewsScrapper.any_instance.stub(:last_page).and_return '<html>Wow</html>'
     ReviewsScrapper.any_instance.stub(:last_page_url).and_return 'http://localhost.tuvieja'
+    CategoriesScrapper.any_instance.stub(:last_page).and_return '<html>Wow</html>'
+    CategoriesScrapper.any_instance.stub(:last_page_url).and_return 'http://localhost.tuvieja'
   end
 
   describe '#new' do
@@ -53,7 +55,6 @@ describe ScrappingOverlord do
     it 'loads the games from Game and calls the ReviewsScrapper' do
       game = build :game
       Game.should_receive(:get_for_reviews_updating).and_return([game])
-      CategoriesScrapper.any_instance.should_receive(:scrap)
       ReviewsScrapper.any_instance.should_receive(:scrap)
       overlord = ScrappingOverlord.new
       overlord.scrap_reviews
@@ -62,7 +63,6 @@ describe ScrappingOverlord do
     it 'should log an error if the HTML is invalid' do
       Log.should_receive(:error).with(/ERROR/i).at_least(1)
       Game.should_receive(:get_for_reviews_updating).and_return([])
-      CategoriesScrapper.any_instance.should_receive(:scrap)
       ReviewsScrapper.any_instance.should_receive(:scrap).and_raise(Scrapper::InvalidHTML)
       overlord = ScrappingOverlord.new
       overlord.scrap_reviews
@@ -70,11 +70,37 @@ describe ScrappingOverlord do
 
     it 'should send an email if the HTML is invalid' do
       Game.should_receive(:get_for_reviews_updating).and_return([])
-      CategoriesScrapper.any_instance.should_receive(:scrap)
       ReviewsScrapper.any_instance.should_receive(:scrap).and_raise(Scrapper::InvalidHTML)
       overlord = ScrappingOverlord.new
       Mail::TestMailer.deliveries.should be_empty
       overlord.scrap_reviews
+      Mail::TestMailer.deliveries.should_not be_empty
+    end
+  end
+
+  describe '#scrap_categories' do
+    it 'loads the games from Game and calls CategoriesScrapper' do
+      game = build :game
+      Game.should_receive(:get_for_categories_updating).and_return [game]
+      CategoriesScrapper.any_instance.should_receive(:scrap)
+      overlord = ScrappingOverlord.new
+      overlord.scrap_categories
+    end
+
+    it 'loads the games from Game and calls CategoriesScrapper' do
+      Log.should_receive(:error).with(/ERROR/i).at_least(1)
+      Game.should_receive(:get_for_categories_updating).and_return([])
+      CategoriesScrapper.any_instance.should_receive(:scrap).and_raise(Scrapper::InvalidHTML)
+      overlord = ScrappingOverlord.new
+      overlord.scrap_categories
+    end
+
+    it 'should send an email if the HTML is invalid' do
+      Game.should_receive(:get_for_categories_updating).and_return([])
+      CategoriesScrapper.any_instance.should_receive(:scrap).and_raise(Scrapper::InvalidHTML)
+      overlord = ScrappingOverlord.new
+      Mail::TestMailer.deliveries.should be_empty
+      overlord.scrap_categories
       Mail::TestMailer.deliveries.should_not be_empty
     end
   end

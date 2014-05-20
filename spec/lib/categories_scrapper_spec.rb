@@ -26,6 +26,16 @@ describe CategoriesScrapper do
                                    'Turn-based', 'Addictive', 'Multiplayer',
                                    '4X', 'Timesink', 'Historic', 'Singleplayer']
       end
+
+      it 'updates the #categories_updated_at attribute' do
+        time_now = Time.now
+        game = build :game
+        game.categories_updated_at = time_now
+        stub_game_request(game, 'categories_valid')
+        scrapper = CategoriesScrapper.new [game]
+        scrapper.scrap
+        game.categories_updated_at.should_not eq time_now
+      end
     end
 
     context 'invalid markup' do

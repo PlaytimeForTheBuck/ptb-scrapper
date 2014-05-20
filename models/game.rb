@@ -63,7 +63,15 @@ class Game
       @dataset = []
     end
 
-    # Gets the games that need *reviews* updating
+    def get_for_reviews_updating
+      get_for_x_updating(:reviews_updated_at)
+    end
+
+    def get_for_categories_updating
+      get_for_x_updating(:categories_updated_at)
+    end
+
+    # Gets the games that need an update based on a last updated_at attribute
     # By the age of the game
     # the time for updating is:
     #   1 week game: 1 day
@@ -71,18 +79,7 @@ class Game
     #   1 year game: 1 month
     #   3 years game: 3 months
     #   3+ years game: 1 year
-    #
-    # Maybe I'm gonna implement something like the following too:
-    #
-    # By the quantity of reviews, the
-    # time for updating is multiplied
-    # This is to not everload the server.
-    #   <20 reviews: max 1 week
-    #   >500 reviews: minimum 1 week
-    #   >1000 reviews: minimum 3 months
-    #
-    # But probably not.
-    def get_for_reviews_updating
+    def get_for_x_updating(updated_at_attribute)
       day_ago    = Time.now - 3600*24           # 1 day ago
       week_ago   = Time.now - 3600*24*7         # 1 week ago
       month_ago  = Time.now - 3600*24*30        # 1 month ago
@@ -91,7 +88,7 @@ class Game
       years_ago  = Time.now - 3600*24*365*3     # 3 years ago
 
       all.select do |game|
-        date     = game.reviews_updated_at
+        date     = game.attributes[updated_at_attribute]
         # If no launch date we treat it like a year ago
         launched = game.launch_date ? game.launch_date : year_ago
 
@@ -150,6 +147,7 @@ class Game
      price
      reviews_updated_at
      game_updated_at
+     categories_updated_at
      sale_price
      categories
      playtime_deviation).each do |attr|
@@ -284,6 +282,10 @@ class Game
 
   def update_game!
     self.game_updated_at = Time.now
+  end
+
+  def update_categories!
+    self.categories_updated_at = Time.now
   end
 
   # We actually have more saving and loading

@@ -94,6 +94,15 @@ describe Game do
     end
   end
 
+  describe '#update_categories!' do
+    it 'should update the #categories_updated_at attribute' do
+      last_time = Time.now      
+      game.categories_updated_at = last_time
+      game.update_categories!
+      game.categories_updated_at.should_not eq last_time
+    end
+  end
+
   %W{positive negative}.each do |posneg|
     describe "#array_#{posneg}_reviews" do
       before :each do

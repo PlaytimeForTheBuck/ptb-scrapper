@@ -44,21 +44,17 @@ class ScrappingOverlord
     end
   end
 
-  def scrap_reviews(options = {}) # And categories
+  def scrap_reviews(options = {})
     options = {save_after_each_game: false}.merge(options)
 
     games = Game.get_for_reviews_updating
     scrapper = ReviewsScrapper.new games
-    categories_scrapper = CategoriesScrapper.new games
 
-    Log.info "Scrapping reviews and categories: #{games.size} games to scrap!"
+    Log.info "Scrapping reviews: #{games.size} games to scrap!"
     Log.info '============================================'
 
     begin
       previous_game = nil
-      categories_scrapper.scrap do |game, data, page|
-        Log.info "#{game.name} / Categories: #{data.join(',')}"
-      end
 
       scrapper.scrap do |game, data, page|
         Log.info "#{game.name} / Page #{page}"
@@ -73,6 +69,22 @@ class ScrappingOverlord
       end
     rescue Scrapper::InvalidHTML => e
       Log.error "ERROR: Invalid HTML!"
+      send_error_email e, scrapper.last_page, scrapper.last_page_url
+    end
+  end
+
+  def scrap_categories
+    games = Game.get_for_categories_updating
+    scrapper = CategoriesScrapper.new games
+
+    Log.info "Scrapping categories: #{games.size} games to scrap!"
+    Log.info '============================================'
+    begin
+      scrapper.scrap do |game, data, page|
+        Log.info "#{game.name} / Categories: #{data.join(',')}"
+      end
+    rescue Scrapper::InvalidHTML => e
+      Log.error 'ERROR: Invalid HTML!'
       send_error_email e, scrapper.last_page, scrapper.last_page_url
     end
   end
