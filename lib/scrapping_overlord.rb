@@ -32,8 +32,8 @@ class ScrappingOverlord
     Log.info '============================================'
     begin
       begin
-        scrapper.scrap do |page_games|
-          Log.info "#{page_games.size} games in this page #{scrapper.last_page_url}"
+        scrapper.scrap do |_, page_games_data, _|
+          Log.info "#{page_games_data.size} games in this page #{scrapper.last_page_url}"
         end
       rescue Scrapper::InvalidHTML => e
         Log.error "ERROR: Invalid HTML!"
@@ -55,7 +55,7 @@ class ScrappingOverlord
 
     begin
       previous_game = nil
-      scrapper.scrap do |game, page|
+      scrapper.scrap do |game, data, page|
         Log.info "#{game.name} / Page #{page}"
         if game != previous_game
           if previous_game and options[:save_after_each_game]

@@ -139,16 +139,17 @@ describe ReviewsScrapper do
         stub_page ReviewsScrapper.url(game.steam_app_id, 2), 'reviews_page_2'
         stub_page ReviewsScrapper.url(game.steam_app_id, 3), 'reviews_page_3'
         stub_empty ReviewsScrapper.url(game.steam_app_id, 4)
-        expect { |b| scrapper.scrap(&b) }.to yield_successive_args([game, 1], [game, 2], [game, 3])
+
+        expect { |b| scrapper.scrap(&b) }.to yield_control.exactly(3).times
       end
     end
   end
 
-  describe '#games' do
+  describe '#subjects' do
     it 'should give the list of games that was given to it' do
       games = [Game.new, Game.new]
       scrapper = ReviewsScrapper.new games
-      scrapper.games.should eq games
+      scrapper.subjects.should eq games
     end
   end
 end
