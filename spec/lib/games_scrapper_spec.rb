@@ -24,7 +24,7 @@ describe GamesScrapper do
         stub_page GamesScrapper.url, 'games_single_page'
         scrapper = GamesScrapper.new []
         scrapper.scrap
-        scrapper.games.size.should eq 25
+        scrapper.subjects.size.should eq 25
       end
     end
 
@@ -33,12 +33,12 @@ describe GamesScrapper do
         stub_page GamesScrapper.url, 'games_single_page'
         scrapper = GamesScrapper.new []
         scrapper.scrap
-        scrapper.games.size.should eq 25
-        scrapper.games[1].price = 9999
-        scrapper.games[1].sale_price = 99
+        scrapper.subjects.size.should eq 25
+        scrapper.subjects[1].price = 9999
+        scrapper.subjects[1].sale_price = 99
         scrapper.scrap
-        scrapper.games[1].price.should eq 6.99
-        scrapper.games[1].sale_price.should eq 4.89
+        scrapper.subjects[1].price.should eq 6.99
+        scrapper.subjects[1].sale_price.should eq 4.89
       end
     end
 
@@ -48,7 +48,7 @@ describe GamesScrapper do
         game = build :game, steam_app_id: 12520
         scrapper = GamesScrapper.new [game]
         scrapper.scrap
-        scrapper.games.size.should eq 25
+        scrapper.subjects.size.should eq 25
         game.name.should eq '18 Wheels of Steel: American Long Haul'
       end
 
@@ -68,7 +68,7 @@ describe GamesScrapper do
         stub_page GamesScrapper.url, 'games_single_page'
         scrapper = GamesScrapper.new []
         scrapper.scrap
-        scrapper.games.first
+        scrapper.subjects.first
       end
 
       it { game.name.should eq '1... 2... 3... KICK IT! (Drop That Beat Like an Ugly Baby)' }
@@ -84,7 +84,7 @@ describe GamesScrapper do
         stub_page GamesScrapper.url, 'games_single_page'
         scrapper = GamesScrapper.new []
         scrapper.scrap
-        scrapper.games[1]
+        scrapper.subjects[1]
       end
 
       it { game.price.should eq 6.99 }
@@ -96,14 +96,14 @@ describe GamesScrapper do
         stub_page GamesScrapper.url, 'games_page_32_with_conflicting_html'
         scrapper = GamesScrapper.new []
         scrapper.scrap
-        scrapper.games.size.should eq 24
+        scrapper.subjects.size.should eq 24
       end
 
       it 'should not raise any error with Third-party' do
          stub_page GamesScrapper.url, 'games_single_page_third_party_price'
           scrapper = GamesScrapper.new []
           scrapper.scrap
-          scrapper.games.size.should eq 25
+          scrapper.subjects.size.should eq 25
       end
     end
 
@@ -151,7 +151,7 @@ describe GamesScrapper do
 
         scrapper = GamesScrapper.new []
         scrapper.scrap
-        scrapper.games.size.should eq 75
+        scrapper.subjects.size.should eq 75
       end
     end
 
@@ -164,7 +164,7 @@ describe GamesScrapper do
       # Games with an unespecific release date -> Ignored
       # Demos -> Ignored
       scrapper.scrap
-      scrapper.games.size.should eq 22
+      scrapper.subjects.size.should eq 22
     end
 
     it 'should call the given block for every request with the scrapped games' do
@@ -181,7 +181,7 @@ describe GamesScrapper do
     it 'should give the list of games that was given to it' do
       games = [Game.new, Game.new]
       scrapper = GamesScrapper.new games
-      scrapper.games.should eq games
+      scrapper.subjects.should eq games
     end
   end
 end

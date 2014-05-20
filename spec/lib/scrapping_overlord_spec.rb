@@ -82,6 +82,7 @@ describe ScrappingOverlord do
       Game.should_receive(:all).and_return([game])
       game.should_receive(:save).and_return true
       Game.should_receive :save_to_file
+      Game.should_receive :save_summary_to_file
       overlord = ScrappingOverlord.new
       overlord.save
     end

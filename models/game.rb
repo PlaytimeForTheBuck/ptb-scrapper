@@ -167,6 +167,10 @@ class Game
     init_defaults
   end
 
+  def id
+    attributes[:steam_app_id]
+  end
+
   ################################
   ## Validations #################
   ################################

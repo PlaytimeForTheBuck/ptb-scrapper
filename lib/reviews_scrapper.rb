@@ -1,5 +1,5 @@
 require 'net/http'
-require 'nokogirl'
+require 'nokogiri'
 
 class ReviewsScrapper < Scrapper
   attr_reader :last_page, :last_page_url

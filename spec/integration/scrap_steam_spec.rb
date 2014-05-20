@@ -24,14 +24,14 @@ describe 'scrap the real thing' do
   describe 'games scrapping' do
 	  it 'should generate more than 40 (ideally 40) games after 2 succeful requests' do
 	  	stub_page GamesScrapper.url(3), 'games_empty_page'	  	
-	  	scrapper = ScrappingOverlord.new 'tmp/db'
+	  	scrapper = ScrappingOverlord.new 'tmp/db', 'tmp/summary_db'
 	  	scrapper.scrap_games
 	  	Game.all.size.should > 40
 	  end
 
 	  it 'should save it to a json object' do
 	  	stub_page GamesScrapper.url(3), 'games_empty_page'	  	
-	  	scrapper = ScrappingOverlord.new 'tmp/db'
+	  	scrapper = ScrappingOverlord.new 'tmp/db', 'tmp/summary_db'
 	  	scrapper.scrap_games
 	  	scrapper.save
 	  	FileUtils.rm_rf('tmp/db')
@@ -50,7 +50,7 @@ describe 'scrap the real thing' do
 			game = Game.new attributes
 			Game.should_receive(:get_for_reviews_updating).and_return([game]);
 			stub_request(:get, ReviewsScrapper.url(440, 3)).to_return body: ''
-			scrapper = ScrappingOverlord.new 'tmp/db'
+			scrapper = ScrappingOverlord.new 'tmp/db', 'tmp/summary_db'
 			scrapper.scrap_reviews
 			game.array_reviews.size.should eq 20
 		end
