@@ -25,8 +25,6 @@ class CategoriesScrapper < Scrapper
       end
     end
 
-    Log.debug data
-
     if data.nil?
       raise InvalidHTML
     end
