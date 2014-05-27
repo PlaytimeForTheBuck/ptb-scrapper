@@ -1,5 +1,5 @@
 .bundle
 log
 tmp
-db
+db/*.sqlite3
 summary_db
