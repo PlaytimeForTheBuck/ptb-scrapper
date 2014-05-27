@@ -340,9 +340,10 @@ describe Game do
     end
   end
 
-  describe '.set_file' do
+  describe '.set_file', focus: true do
     it 'should create a dataset and games from the file' do
       game = build :game
+
       Game.all.should eq []
       Game.dataset.should eq []
       file = StringIO.new [game].to_json

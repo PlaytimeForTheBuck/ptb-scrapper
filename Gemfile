@@ -10,4 +10,6 @@ gem 'nokogiri'
 gem 'mail'
 gem 'yell'
 gem 'webmock'
-gem "fakefs", :require => "fakefs/safe"
+gem 'fakefs', :require => 'fakefs/safe'
+gem 'activerecord'
+gem 'sqlite3'

@@ -111,7 +111,7 @@ class Game
         elsif launched > years_ago
           # Updated more than 3 months ago
           date < months_ago
-        else
+        else # Launched more than 3 years ago?
           # Updated more than a year ago
           date < year_ago
         end
@@ -152,7 +152,7 @@ class Game
      categories
      playtime_deviation).each do |attr|
 
-    define_method attr do 
+    define_method attr do
       @attributes[attr.to_sym]
     end
 
@@ -163,6 +163,7 @@ class Game
 
   def initialize(attributes = {})
     @attributes = attributes
+    Log.debug @attributes.inspect
     init_defaults
   end
 
@@ -339,7 +340,9 @@ class Game
   alias_method :process, :save
 
   def save!
-    raise('Save error') if not save
+    if not save
+      raise('Save error')
+    end
   end
   alias_method :process!, :save!
 
@@ -403,11 +406,11 @@ class Game
   ## Utilities ####################
   #################################
 
-  def to_json(a = nil)
+  def as_json(options)
     if Game.to_summary_json?
-      to_summary_json
+      summary_attrs
     else
-      JSON.generate attributes
+      attributes
     end
   end
 
@@ -436,10 +439,6 @@ class Game
     end
 
     attrs
-  end
-
-  def to_summary_json(a = nil)
-    JSON.generate summary_attrs
   end
 
   def ==(game)

@@ -104,6 +104,11 @@ class ScrappingOverlord
     Game.save_summary_to_file(@summary_file)
   end
 
+  def close
+    @file.close
+    @summary_file.close
+  end
+
   private
 
   def send_error_email(exception, faulty_page, faulty_page_url)
