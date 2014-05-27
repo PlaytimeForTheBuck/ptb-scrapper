@@ -14,7 +14,7 @@ require_relative 'lib/scrapping_overlord'
 require_relative 'lib/games_collection'
 require_relative 'models/game'
 
-ENV['APP_ENV'] ||= 'dev'
+ENV['APP_ENV'] ||= 'development'
 env = ENV['APP_ENV']
 
 Log = Yell.new do |l|
@@ -23,7 +23,7 @@ Log = Yell.new do |l|
             keep: 5,
             date_pattern: '%Y-%m'
 
-  if ENV['APP_ENV'] == 'dev'
+  if ENV['APP_ENV'] == 'development'
     l.adapter STDOUT
   end
 end
