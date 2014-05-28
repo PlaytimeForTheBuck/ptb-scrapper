@@ -12,9 +12,9 @@ class ScrappingOverlord
     @file = File.open file_name, 'w'
   end
 
-  def scrap_games(autosave = true)
+  def scrap_games_list(autosave = true)
     games = GameAr.all
-    scrapper = GamesScrapper.new games
+    scrapper = GamesListScrapper.new games
 
     Log.info "Scrapping games: #{games.size} are the current games!"
     Log.info '============================================'
@@ -64,7 +64,7 @@ class ScrappingOverlord
 
   def scrap_categories(autosave = true)
     games = GameAr.get_for_games_updating
-    scrapper = CategoriesScrapper.new games
+    scrapper = GameScrapper.new games
 
     Log.info "Scrapping categories: #{games.size} games to scrap!"
     Log.info '============================================'

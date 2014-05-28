@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe CategoriesScrapper do
+describe GameScrapper do
   def fixture(name)
     file_name = File.expand_path("../../fixtures/#{name}.html", __FILE__)
     File.read file_name
@@ -12,7 +12,7 @@ describe CategoriesScrapper do
   end
 
   def stub_game_request(game, name)
-    stub_page(CategoriesScrapper.url(game.steam_app_id), name)
+    stub_page(GameScrapper.url(game.steam_app_id), name)
   end
 
   describe '#scrap' do
@@ -20,7 +20,7 @@ describe CategoriesScrapper do
       it 'updates the categories of the game' do
         game = build :game_ar
         stub_game_request(game, 'categories_valid')
-        scrapper = CategoriesScrapper.new [game]
+        scrapper = GameScrapper.new [game]
         scrapper.scrap
         game.categories.should eq ['Turn-based Strategy', 'Strategy', 'One More Turn',
                                    'Turn-based', 'Addictive', 'Multiplayer',
@@ -32,7 +32,7 @@ describe CategoriesScrapper do
         game = build :game_ar
         game.game_updated_at = time_now
         stub_game_request(game, 'categories_valid')
-        scrapper = CategoriesScrapper.new [game]
+        scrapper = GameScrapper.new [game]
         scrapper.scrap
         game.game_updated_at.should_not eq time_now
       end
@@ -42,7 +42,7 @@ describe CategoriesScrapper do
       it 'should ignore the game' do
         game = build :game_ar
         stub_game_request(game, 'categories_region_locked_error')
-        scrapper = CategoriesScrapper.new [game]
+        scrapper = GameScrapper.new [game]
         scrapper.scrap
         game.categories.should eq []
       end
@@ -52,7 +52,7 @@ describe CategoriesScrapper do
       it 'should raise an InvalidHTML error' do
         game = build :game_ar
         stub_game_request(game, 'categories_invalid')
-        scrapper = CategoriesScrapper.new [game]
+        scrapper = GameScrapper.new [game]
         -> {scrapper.scrap}.should raise_error Scrapper::InvalidHTML
       end
     end

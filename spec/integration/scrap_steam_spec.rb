@@ -30,23 +30,23 @@ describe 'scrap the real thing' do
 
   describe 'games scrapping' do
   	before :each do
-  		stub_page GamesScrapper.url(1), 'games_steam_spec_1'
-	  	stub_page GamesScrapper.url(2), 'games_steam_spec_2'
-	  	stub_page GamesScrapper.url(3), 'games_empty_page'	
+  		stub_page GamesListScrapper.url(1), 'games_steam_spec_1'
+	  	stub_page GamesListScrapper.url(2), 'games_steam_spec_2'
+	  	stub_page GamesListScrapper.url(3), 'games_empty_page'	
   	end
 
 	  it 'should generate (ideally) 50 games after 2 succeful requests' do
-	  	games = scrapper.scrap_games(false)
+	  	games = scrapper.scrap_games_list(false)
 	  	games.size.should eq 50
 	  end
 
 	  it 'should save it to a the DB' do  	
-	  	scrapper.scrap_games(true)
+	  	scrapper.scrap_games_list(true)
 	  	GameAr.all.size.should eq 50
 	  end
 
 	  it 'should generate the summary file' do
-	  	scrapper.scrap_games(true)
+	  	scrapper.scrap_games_list(true)
 	  	file_attr = JSON.parse File.read('tmp/db/games.json'), symbolize_names: true
 	  	file_attr.sort! {|h| h[:steam_app_id]}
 	  	Log.debug file_attr

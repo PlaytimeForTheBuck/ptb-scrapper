@@ -17,18 +17,10 @@ end
 
 if SCRAP_REVIEWS
 	scrapper.scrap_reviews(save_after_each_game: SAVE_GAMES)
-
-	if SAVE_GAMES
-		scrapper.save
-	end
 end
 
 if SCRAP_CATEGORIES
   scrapper.scrap_categories(SAVE_GAMES)
-
-  if SAVE_GAMES
-    scrapper.save
-  end
 end
 
 if not SCRAP_REVIEWS and not SCRAP_GAMES and SAVE_GAMES

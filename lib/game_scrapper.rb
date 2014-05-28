@@ -1,7 +1,7 @@
 require 'net/http'
 require 'nokogiri'
 
-class CategoriesScrapper < Scrapper
+class GameScrapper < Scrapper
   # This is to simplify testing, to mock the URL
   def self.url(app_id)
     "http://store.steampowered.com/app/#{app_id}"
