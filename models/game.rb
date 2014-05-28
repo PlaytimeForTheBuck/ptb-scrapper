@@ -163,7 +163,6 @@ class Game
 
   def initialize(attributes = {})
     @attributes = attributes
-    Log.debug @attributes.inspect
     init_defaults
   end
 

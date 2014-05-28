@@ -13,6 +13,8 @@ require_relative 'lib/categories_scrapper'
 require_relative 'lib/scrapping_overlord'
 require_relative 'lib/games_collection'
 require_relative 'models/game'
+require_relative 'models/game_ar'
+require_relative 'models/price'
 
 ENV['APP_ENV'] ||= 'development'
 env = ENV['APP_ENV']
@@ -35,5 +37,7 @@ MAX_REVIEWS = 1000
 Mail.defaults do
 	delivery_method :smtp, enable_starttls_auto: false
 end
+
+I18n.enforce_available_locales = false
 
 ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: "db/#{env}.sqlite3")
