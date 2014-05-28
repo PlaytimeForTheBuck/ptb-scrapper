@@ -55,8 +55,8 @@ class ReviewsScrapper < Scrapper
 
   def save_group_data(reviews, game)
     if not reviews.nil?
-      game.array_positive_reviews = reviews[:positive]
-      game.array_negative_reviews = reviews[:negative]
+      game.positive_reviews = reviews[:positive]
+      game.negative_reviews = reviews[:negative]
     end
     game.update_reviews!
   end

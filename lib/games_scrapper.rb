@@ -49,12 +49,12 @@ class GamesScrapper < Scrapper
       game = get_by_id attrs[:steam_app_id]
       new_game = !game 
       if new_game
-        game = Game.new(attrs)
+        game = GameAr.new(attrs)
         add_subject game
       else
-        game.attributes.merge! attrs
+        game.assign_attributes attrs
       end
-      game.update_game!
+      game.update_game_list!
     end
   end
 
@@ -122,6 +122,7 @@ class GamesScrapper < Scrapper
       sale_price = sale_price[0]
     # In regular format
     else
+      old_price = e_price_container.first.content
       price = e_price_container.first.content.sub('$', '')
       sale_price = nil
     end

@@ -17,14 +17,14 @@ describe ReviewsScrapper do
 
   describe '#new' do
     it 'should be created with a list of previous games' do
-      games = [Game.new, Game.new, Game.new]
+      games = [GameAr.new, GameAr.new, GameAr.new]
       ReviewsScrapper.new games
     end
   end
 
   describe '#scrap' do
     it 'updates the reviews_updated_at attribute' do
-      games = [Game.new, Game.new, Game.new]
+      games = [GameAr.new, GameAr.new, GameAr.new]
       stub_empty ReviewsScrapper.url(games[0].steam_app_id)
       stub_empty ReviewsScrapper.url(games[1].steam_app_id)
       stub_empty ReviewsScrapper.url(games[2].steam_app_id)
@@ -39,101 +39,101 @@ describe ReviewsScrapper do
 
     context 'there are no reviews' do
       it 'does not fill any review' do
-        game = build :game
+        game = build :game_ar
         stub_request(:get, ReviewsScrapper.url(game.steam_app_id)).to_return body: ''
         scrapper = ReviewsScrapper.new [game]
         scrapper.scrap
-        game.array_positive_reviews.size.should eq 0
-        game.array_negative_reviews.size.should eq 0
+        game.positive_reviews.size.should eq 0
+        game.negative_reviews.size.should eq 0
       end
     end
 
     context 'there are reviews' do
       it 'fills the reviews' do
-        game = build :game
+        game = build :game_ar
         scrapper = ReviewsScrapper.new [game]
         stub_page ReviewsScrapper.url(game.steam_app_id), 'reviews_single_page'
         stub_empty ReviewsScrapper.url(game.steam_app_id, 2)
         scrapper.scrap
-        game.array_reviews.size.should eq 10
+        game.reviews.size.should eq 10
       end
 
       it 'ignores invalid review without played time' do
-        game = build :game
+        game = build :game_ar
         scrapper = ReviewsScrapper.new [game]
         stub_page ReviewsScrapper.url(game.steam_app_id), 'reviews_single_page_one_without_hours'
         stub_empty ReviewsScrapper.url(game.steam_app_id, 2)
         scrapper.scrap
-        game.array_reviews.size.should eq 9
+        game.reviews.size.should eq 9
       end
 
       it 'fills the positive and negative reviews' do
-        game = build :game
+        game = build :game_ar
         scrapper = ReviewsScrapper.new [game]
         stub_page ReviewsScrapper.url(game.steam_app_id), 'reviews_single_page_3_pos_7_neg'
         stub_empty ReviewsScrapper.url(game.steam_app_id, 2)
         scrapper.scrap
-        game.array_positive_reviews.size.should eq 3
-        game.array_negative_reviews.size.should eq 7
+        game.positive_reviews.size.should eq 3
+        game.negative_reviews.size.should eq 7
       end
 
       it 'reads every review playtime' do
-        game = build :game
+        game = build :game_ar
         scrapper = ReviewsScrapper.new [game]
         stub_page ReviewsScrapper.url(game.steam_app_id), 'reviews_single_page_3_pos_7_neg'
         stub_empty ReviewsScrapper.url(game.steam_app_id, 2)
         scrapper.scrap
-        game.array_positive_reviews[0].should eq 19.0
-        game.array_positive_reviews[1].should eq 15.7
-        game.array_positive_reviews[2].should eq 9.5
-        game.array_negative_reviews[0].should eq 4.5
-        game.array_negative_reviews[1].should eq 1.5
-        game.array_negative_reviews[2].should eq 6.7
-        game.array_negative_reviews[3].should eq 25.0
-        game.array_negative_reviews[4].should eq 25.8
-        game.array_negative_reviews[5].should eq 9.2
-        game.array_negative_reviews[6].should eq 13.5
+        game.positive_reviews[0].should eq 19.0
+        game.positive_reviews[1].should eq 15.7
+        game.positive_reviews[2].should eq 9.5
+        game.negative_reviews[0].should eq 4.5
+        game.negative_reviews[1].should eq 1.5
+        game.negative_reviews[2].should eq 6.7
+        game.negative_reviews[3].should eq 25.0
+        game.negative_reviews[4].should eq 25.8
+        game.negative_reviews[5].should eq 9.2
+        game.negative_reviews[6].should eq 13.5
       end
 
       context 'an existing game with existing reviews' do
         it 'should replace the previous reviews' do
-          game = build :game
-          game.array_positive_reviews = [1,2,3]
+          game = build :game_ar
+          game.positive_reviews = [1,2,3]
           scrapper = ReviewsScrapper.new [game]
           stub_page ReviewsScrapper.url(game.steam_app_id), 'reviews_single_page'
           stub_empty ReviewsScrapper.url(game.steam_app_id, 2)
           scrapper.scrap
-          game.array_reviews.size.should eq 10
+          game.reviews.size.should eq 10
         end
       end
     end
 
     context 'there is a review flagged as abusive' do
       it 'should ignore it' do
-        game = build :game
+        game = build :game_ar
         scrapper = ReviewsScrapper.new [game]
         stub_page ReviewsScrapper.url(game.steam_app_id), 'reviews_flagged_as_abusive'
         stub_empty ReviewsScrapper.url(game.steam_app_id, 2)
         scrapper.scrap
-        game.array_reviews.size.should eq 1
+        game.reviews.size.should eq 1
       end
     end
 
 
     context 'there are many pages' do
       it 'reads the reviews from each page' do
-        game = build :game
+        game = build :game_ar
         scrapper = ReviewsScrapper.new [game]
         stub_page ReviewsScrapper.url(game.steam_app_id, 1), 'reviews_page_1'
         stub_page ReviewsScrapper.url(game.steam_app_id, 2), 'reviews_page_2'
         stub_page ReviewsScrapper.url(game.steam_app_id, 3), 'reviews_page_3'
         stub_empty ReviewsScrapper.url(game.steam_app_id, 4)
         scrapper.scrap
-        game.array_reviews.size.should eq 30
+        game.reviews.size.should eq 30
       end
 
       it 'calls the yield block for each page' do
-        game = build :game
+        game = build :game_ar
         scrapper = ReviewsScrapper.new [game]
         stub_page ReviewsScrapper.url(game.steam_app_id, 1), 'reviews_page_1'
         stub_page ReviewsScrapper.url(game.steam_app_id, 2), 'reviews_page_2'
@@ -147,7 +147,7 @@ describe ReviewsScrapper do
 
   describe '#subjects' do
     it 'should give the list of games that was given to it' do
-      games = [Game.new, Game.new]
+      games = [GameAr.new, GameAr.new]
       scrapper = ReviewsScrapper.new games
       scrapper.subjects.should eq games
     end

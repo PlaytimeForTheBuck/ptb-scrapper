@@ -61,15 +61,10 @@ describe GameAr do
     #   game.should_not be_valid
     # end
 
-    # it 'requires a price' do
+    # it 'requires price not nil' do
     #   game.price = nil
     #   game.should_not be_valid
     # end
-
-    it 'requires price not nil' do
-      game.price = nil
-      game.should_not be_valid
-    end
   end
 
   describe '#categories' do

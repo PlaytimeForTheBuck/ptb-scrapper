@@ -13,7 +13,7 @@ describe GamesScrapper do
 
   describe '#new' do
     it 'should be created with a list of previous games' do
-      games = [Game.new, Game.new, Game.new]
+      games = [GameAr.new, GameAr.new, GameAr.new]
       GamesScrapper.new games
     end
   end
@@ -45,7 +45,7 @@ describe GamesScrapper do
     context 'some games exist and some do not' do
       it 'should update the existing games and create the new games' do
         stub_page GamesScrapper.url, 'games_single_page'
-        game = build :game, steam_app_id: 12520
+        game = build :game_ar, steam_app_id: 12520
         scrapper = GamesScrapper.new [game]
         scrapper.scrap
         scrapper.subjects.size.should eq 25
@@ -54,12 +54,12 @@ describe GamesScrapper do
 
       it 'should update the game_updated_at of all the games' do
         stub_page GamesScrapper.url, 'games_single_page'
-        game = build :game, steam_app_id: 12520
+        game = build :game_ar, steam_app_id: 12520
         scrapper = GamesScrapper.new [game]
-        game.game_updated_at.should eq nil
+        game.game_list_updated_at.should eq nil
         time_now = Time.now
         scrapper.scrap
-        game.game_updated_at.should > time_now
+        game.game_list_updated_at.should > time_now
       end
     end
 
@@ -179,7 +179,7 @@ describe GamesScrapper do
 
   describe '#games' do
     it 'should give the list of games that was given to it' do
-      games = [Game.new, Game.new]
+      games = [GameAr.new, GameAr.new]
       scrapper = GamesScrapper.new games
       scrapper.subjects.should eq games
     end

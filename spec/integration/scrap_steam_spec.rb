@@ -11,7 +11,7 @@ describe 'scrap the real thing' do
     stub_request(:get, url).to_return body: web_content
   end
 
-  let(:scrapper) { ScrappingOverlord.new 'tmp/db', 'tmp/summary_db' }
+  let(:scrapper) { ScrappingOverlord.new 'tmp/db/games.json' }
 
 	before :all do
 		# WebMock.allow_net_connect!
@@ -25,43 +25,49 @@ describe 'scrap the real thing' do
 
 	after :each do
 		scrapper.close
-		FileUtils.rm_rf('tmp/db')
+		# FileUtils.rm_rf('tmp/db')
 	end
 
   describe 'games scrapping' do
-	  it 'should generate more than 40 (ideally 40) games after 2 succeful requests' do
-	  	stub_page GamesScrapper.url(1), 'games_steam_spec_1'
+  	before :each do
+  		stub_page GamesScrapper.url(1), 'games_steam_spec_1'
 	  	stub_page GamesScrapper.url(2), 'games_steam_spec_2'
-	  	stub_page GamesScrapper.url(3), 'games_empty_page'	  	
-	  	scrapper.scrap_games
-	  	Game.all.size.should > 40
+	  	stub_page GamesScrapper.url(3), 'games_empty_page'	
+  	end
+
+	  it 'should generate (ideally) 50 games after 2 succeful requests' do
+	  	games = scrapper.scrap_games(false)
+	  	games.size.should eq 50
 	  end
 
-	  it 'should save it to a json object' do
-	  	stub_page GamesScrapper.url(1), 'games_steam_spec_1'
-	  	stub_page GamesScrapper.url(2), 'games_steam_spec_2'
-	  	stub_page GamesScrapper.url(3), 'games_empty_page'	  	
-	  	scrapper.scrap_games
-	  	scrapper.save
+	  it 'should save it to a the DB' do  	
+	  	scrapper.scrap_games(true)
+	  	GameAr.all.size.should eq 50
+	  end
 
-	  	file_name = Dir.glob("tmp/db/*").last
-	  	File.open file_name, 'r' do |file|
-	  		games = JSON.parse(file.read, symbolize_names: true)
-	  		games.size.should > 40
-	  	end
+	  it 'should generate the summary file' do
+	  	scrapper.scrap_games(true)
+	  	file_attr = JSON.parse File.read('tmp/db/games.json'), symbolize_names: true
+	  	file_attr.sort! {|h| h[:steam_app_id]}
+	  	Log.debug file_attr
+	  	games_json = GameAr.all.to_json
+	  	games_attr = JSON.parse games_json, symbolize_names: true
+	  	games_attr.sort! {|h| h[:steam_app_id]}
+	  	file_attr.size.should eq games_attr.size
 	  end
 	end
 
 	describe 'reviews scrapping' do
 		it 'should get all the reviewable games reviews' do
-			attributes = JSON.parse(%Q({"average_time_negative":0,"average_time_positive":0,"array_positive_reviews":[],"array_negative_reviews":[],"meta_score":null,"price":7.99,"sale_price":null,"launch_date":"2014-04-03 00:00:00 -0300","reviews_updated_at":null,"game_updated_at":"2014-04-23 21:21:45 -0300","name":"Team Fortress 2","steam_app_id":440}), symbolize_names: true);
-			game = Game.new attributes
-			Game.should_receive(:get_for_reviews_updating).and_return([game]);
+			game = build :game_ar
+			game.steam_app_id = 440
+			GameAr.should_receive(:get_for_reviews_updating).and_return([game]);
 			stub_page ReviewsScrapper.url(440, 1), 'reviews_steam_spec_1'
 			stub_page ReviewsScrapper.url(440, 2), 'reviews_steam_spec_1'
 			stub_request(:get, ReviewsScrapper.url(440, 3)).to_return body: ''
-			scrapper.scrap_reviews
-			game.array_reviews.size.should eq 20
+			scrapper.scrap_reviews(true)
+			GameAr.all.size.should eq 1
+			GameAr.first.reviews.size.should eq 20
 		end
 	end
 end

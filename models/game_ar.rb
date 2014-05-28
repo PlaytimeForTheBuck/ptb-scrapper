@@ -27,8 +27,8 @@ class GameAr < ActiveRecord::Base
     get_for_x_updating(:reviews_updated_at)
   end
 
-  def self.get_for_categories_updating
-    get_for_x_updating(:categories_updated_at)
+  def self.get_for_games_updating
+    get_for_x_updating(:game_updated_at)
   end
 
   # Gets the games that need an update based on a last updated_at attribute
@@ -103,7 +103,7 @@ class GameAr < ActiveRecord::Base
 
   validates :name, presence: true
   validates :steam_app_id, presence: true
-  validates :price, presence: true
+  # validates :price, presence: true
 
   validate :are_positive_reviews_numeric?
   validate :are_negative_reviews_numeric?

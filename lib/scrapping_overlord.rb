@@ -3,29 +3,17 @@ require 'fileutils'
 class ScrappingOverlord
   NOTIFICATIONS_EMAIL_FROM = 'PlaytimeForTheBuck ScrapperBot <scrapper@playtimeforthebuck.com>'
 
-  def initialize(files_path = 'db', summary_files_path = 'summary_db')
-    @file_name = Time.now.strftime '%Y-%m-%d.%H-%M-%S'
-    file_extension = 'json'
-    file_path = "#{files_path}/#{@file_name}.#{file_extension}"
-    summary_file_path = "#{summary_files_path}/#{@file_name}.#{file_extension}"
+  def initialize(relative_file_name = 'db/games.json')
+    file_name = relative_file_name#File.expand_path relative_file_name, __FILE__
+    file_path = File.dirname(file_name)
 
-    FileUtils.mkdir files_path if not File.directory? files_path
-    FileUtils.mkdir summary_files_path if not File.directory? summary_files_path
+    FileUtils.mkpath file_path if not File.directory? file_path
 
-    last_file = Dir.glob("#{files_path}/*").last
-    if last_file
-      FileUtils.cp last_file, file_path
-    else
-      FileUtils.touch file_path
-    end
-
-    @file = File.open file_path, 'a+'
-    @summary_file = File.open summary_file_path, 'w'
-    Game.set_file @file
+    @file = File.open file_name, 'w'
   end
 
-  def scrap_games
-    games = Game.all
+  def scrap_games(autosave = true)
+    games = GameAr.all
     scrapper = GamesScrapper.new games
 
     Log.info "Scrapping games: #{games.size} are the current games!"
@@ -42,12 +30,13 @@ class ScrappingOverlord
     rescue Scrapper::NoServerConnection => e
       Log.error 'ERROR: No server connection on page next to the previous page'
     end
+
+    save(games) if autosave
+    games
   end
 
-  def scrap_reviews(options = {})
-    options = {save_after_each_game: false}.merge(options)
-
-    games = Game.get_for_reviews_updating
+  def scrap_reviews(autosave = true)
+    games = GameAr.get_for_reviews_updating
     scrapper = ReviewsScrapper.new games
 
     Log.info "Scrapping reviews: #{games.size} games to scrap!"
@@ -58,12 +47,8 @@ class ScrappingOverlord
 
       scrapper.scrap do |game, data, page|
         Log.info "#{game.name} / Page #{page}"
-        if game != previous_game
-          if previous_game and options[:save_after_each_game]
-            previous_game.save
-            Game.save_to_file
-            Game.save_summary_to_file(@summary_file)
-          end
+        if autosave and game != previous_game
+          previous_game.save! if not previous_game.nil?
           previous_game = game
         end
       end
@@ -71,22 +56,22 @@ class ScrappingOverlord
       Log.error "ERROR: Invalid HTML!"
       send_error_email e, scrapper.last_page, scrapper.last_page_url
     end
+
+    save(games) if autosave
+
+    games
   end
 
-  def scrap_categories(autosave = false)
-    games = Game.get_for_categories_updating
+  def scrap_categories(autosave = true)
+    games = GameAr.get_for_games_updating
     scrapper = CategoriesScrapper.new games
 
     Log.info "Scrapping categories: #{games.size} games to scrap!"
     Log.info '============================================'
-    count = 0
     begin
       scrapper.scrap do |game, data, page|
-        count += 1
-        if autosave and count % 10 == 0 # Save every 10 games
-          Game.save_to_file
-          Game.save_summary_to_file(@summary_file)
-        end
+        game.save! if autosave
+
         categories = data.nil? ? '???' : data.join(',')
         Log.info "#{game.name} / Categories: #{categories}"
       end
@@ -94,19 +79,24 @@ class ScrappingOverlord
       Log.error 'ERROR: Invalid HTML!'
       send_error_email e, scrapper.last_page, scrapper.last_page_url
     end
-  end
 
-  def save
-    Game.all.each do |game|  
-      game.save!
-    end
-    Game.save_to_file
-    Game.save_summary_to_file(@summary_file)
+    save(games) if autosave
+
+    games
   end
 
   def close
     @file.close
-    @summary_file.close
+  end
+
+  def save(games)
+    games.each do |game|  
+      game.save!
+    end
+
+    @file.truncate 0
+    @file.rewind
+    @file.write games.to_json
   end
 
   private
