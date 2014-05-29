@@ -18,12 +18,14 @@ class Scrapper
   end
 
   def scrap(&block)
-    concurrent = 4
+    concurrent = 10
     slices_sizes = (scrapping_groups.size / concurrent + 1).floor
 
     concurrent_scrapping_groups = scrapping_groups.each_slice(slices_sizes)
 
     threads = []
+
+    data_to_be_saved = []
 
     concurrent_scrapping_groups.each do |concurrent_scrapping_group|
       thread = Thread.new do
@@ -35,8 +37,6 @@ class Scrapper
           doc = nil
           while not finish
             url = get_url(doc, index, group)
-
-            Log.debug url
 
             @last_page = index
             @last_page_url = url
@@ -57,12 +57,11 @@ class Scrapper
               end
 
               finish = ! keep_scrapping_before?(doc)
-              Log.debug url
               if not finish
                 group_data = parse_page(doc, group, group_data, &block)
                 save_data(group_data, group, &block)
 
-                finish = ! keep_scrapping_after?(doc)
+                finish = ! keep_scrapping_after?(doc, group_data)
                 if not finish
                   index += 1
                 end
@@ -72,6 +71,7 @@ class Scrapper
 
           save_group_data(group_data, group, &block)
         end
+        ActiveRecord::Base.connection.close
       end
 
       threads.push thread

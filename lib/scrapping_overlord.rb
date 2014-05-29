@@ -49,7 +49,11 @@ class ScrappingOverlord
       scrapper.scrap do |game, reviews, finished_game|
         reviews_count = reviews[:positive].size + reviews[:negative].size
         finished = finished_game ? 'FINISHED!' : ''
-        Log.info "#{game.name} / Reviews: #{reviews_count} #{finished}"
+
+        current_game = games.index(game) + 1
+        pagination = "#{current_game}/#{games.size}".ljust(10)
+        game_name = game.name[0...30].ljust(30)
+        Log.info "#{game_name} - #{pagination} - Reviews: #{reviews_count} #{finished}"
         game.save! if autosave and finished_game
       end
     rescue Scrapper::InvalidHTML => e

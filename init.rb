@@ -23,7 +23,7 @@ Log = Yell.new do |l|
             date_pattern: '%Y-%m'
 
   if ENV['APP_ENV'] == 'development'
-    l.adapter STDOUT
+    l.adapter STDOUT, format: '[%5L] %m'
   end
 end
 

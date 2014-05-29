@@ -67,7 +67,7 @@ class ReviewsScrapper < Scrapper
     subjects
   end
 
-  def keep_scrapping_after?(doc)
+  def keep_scrapping_after?(doc, group_data)
     return true if group_data.nil?
     group_data[:positive].size + group_data[:negative].size < MAX_REVIEWS
   end
