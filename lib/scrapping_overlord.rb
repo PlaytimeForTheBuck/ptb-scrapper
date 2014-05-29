@@ -20,19 +20,20 @@ class ScrappingOverlord
     Log.info '============================================'
     begin
       begin
-        scrapper.scrap do |_, page_games_data, _|
-          Log.info "#{page_games_data.size} games in this page #{scrapper.last_page_url}"
+        scrapper.scrap do |games, page|
+          games.each(&:save!) if autosave
+          Log.info "#{games.size} games in page #{page}"
         end
       rescue Scrapper::InvalidHTML => e
-        Log.error "ERROR: Invalid HTML!"
+        Log.error "ERROR: Invalid HTML!", scrapper.last_page_url
         send_error_email e, scrapper.last_page, scrapper.last_page_url
       end
     rescue Scrapper::NoServerConnection => e
       Log.error 'ERROR: No server connection on page next to the previous page'
     end
 
-    save(games) if autosave
-    games
+    create_summary scrapper.subjects if autosave
+    scrapper.subjects
   end
 
   def scrap_reviews(autosave = true)
@@ -43,57 +44,50 @@ class ScrappingOverlord
     Log.info '============================================'
 
     begin
-      previous_game = nil
-
-      scrapper.scrap do |game, data, page|
-        Log.info "#{game.name} / Page #{page}"
-        if autosave and game != previous_game
-          previous_game.save! if not previous_game.nil?
-          previous_game = game
-        end
+      scrapper.scrap do |game, reviews, finished_game|
+        Log.debug game, reviews[:positive].size, reviews[:negative].size, finished_game
+        reviews_count = reviews[:positive].size + reviews[:negative].size
+        finished = finished_game ? 'FINISHED!' : ''
+        Log.info "#{game.name} / Reviews: #{reviews_count} #{finished}"
+        game.save! if autosave and finished_game
       end
     rescue Scrapper::InvalidHTML => e
-      Log.error "ERROR: Invalid HTML!"
+      Log.error "ERROR: Invalid HTML!", scrapper.last_page_url
       send_error_email e, scrapper.last_page, scrapper.last_page_url
     end
 
-    save(games) if autosave
-
-    games
+    create_summary scrapper.subjects if autosave
+    scrapper.subjects
   end
 
-  def scrap_categories(autosave = true)
+  def scrap_games(autosave = true)
     games = GameAr.get_for_games_updating
     scrapper = GameScrapper.new games
 
     Log.info "Scrapping categories: #{games.size} games to scrap!"
     Log.info '============================================'
     begin
-      scrapper.scrap do |game, data, page|
+      scrapper.scrap do |game|
         game.save! if autosave
 
-        categories = data.nil? ? '???' : data.join(',')
-        Log.info "#{game.name} / Categories: #{categories}"
+        categories = game.categories.join(', ')
+        current_page = games.index(game) + 1
+        Log.info "#{current_page}/#{games.size} - #{game.name} - Categories: #{categories}"
       end
     rescue Scrapper::InvalidHTML => e
-      Log.error 'ERROR: Invalid HTML!'
+      Log.error 'ERROR: Invalid HTML!', scrapper.last_page_url
       send_error_email e, scrapper.last_page, scrapper.last_page_url
     end
 
-    save(games) if autosave
-
-    games
+    create_summary scrapper.subjects if autosave
+    scrapper.subjects
   end
 
   def close
     @file.close
   end
 
-  def save(games)
-    games.each do |game|  
-      game.save!
-    end
-
+  def create_summary(games)
     @file.truncate 0
     @file.rewind
     @file.write games.to_json

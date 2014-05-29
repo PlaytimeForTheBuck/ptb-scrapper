@@ -140,7 +140,7 @@ describe ReviewsScrapper do
         stub_page ReviewsScrapper.url(game.steam_app_id, 3), 'reviews_page_3'
         stub_empty ReviewsScrapper.url(game.steam_app_id, 4)
 
-        expect { |b| scrapper.scrap(&b) }.to yield_control.exactly(3).times
+        expect { |b| scrapper.scrap(&b) }.to yield_control.exactly(4).times
       end
     end
   end

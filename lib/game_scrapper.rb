@@ -40,6 +40,7 @@ class GameScrapper < Scrapper
   def save_data(tags_array, game)
     game.categories = tags_array
     game.update_game!
+    yield(game) if block_given?
   end
 
   # This way we only scrap once per group

@@ -45,17 +45,21 @@ class GamesListScrapper < Scrapper
   end
 
   def save_data(games_attrs, group)
+    new_games = []
     games_attrs.each do |attrs|
       game = get_by_id attrs[:steam_app_id]
       new_game = !game 
       if new_game
         game = GameAr.new(attrs)
+        new_games.push game
         add_subject game
       else
         game.assign_attributes attrs
       end
       game.update_game_list!
     end
+
+    yield(new_games, last_page) if block_given?
   end
 
   def keep_scrapping_after?(doc)

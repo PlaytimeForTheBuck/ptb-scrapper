@@ -50,6 +50,8 @@ class ReviewsScrapper < Scrapper
       end
     end
 
+    yield game, reviews, false if block_given?
+
     reviews
   end
 
@@ -59,6 +61,7 @@ class ReviewsScrapper < Scrapper
       game.negative_reviews = reviews[:negative]
     end
     game.update_reviews!
+    yield game, reviews, true if block_given?
   end
 
   def scrapping_groups

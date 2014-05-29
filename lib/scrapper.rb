@@ -17,7 +17,7 @@ class Scrapper
     end
   end
 
-  def scrap
+  def scrap(&block)
     scrapping_groups.each_index do |i|
       @group_index = i
       @index = 0
@@ -43,9 +43,8 @@ class Scrapper
 
           finish = ! keep_scrapping_before?(doc)
           if not finish
-            group_data = parse_page(doc, group, group_data)
-            yield group, group_data, index if block_given?
-            save_data(group_data, group)
+            group_data = parse_page(doc, group, group_data, &block)
+            save_data(group_data, group, &block)
 
             finish = ! keep_scrapping_after?(doc)
             if not finish
@@ -55,7 +54,7 @@ class Scrapper
         end
       end
 
-      save_group_data(group_data, group)
+      save_group_data(group_data, group, &block)
     end
     
   end
