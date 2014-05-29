@@ -37,4 +37,4 @@ end
 
 I18n.enforce_available_locales = false
 
-ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: "db/#{env}.sqlite3")
+ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: "db/#{env}.sqlite3", timeout: 30000, pool: 15)

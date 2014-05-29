@@ -71,7 +71,8 @@ class Scrapper
 
           save_group_data(group_data, group, &block)
         end
-        ActiveRecord::Base.connection.close
+        
+        ActiveRecord::Base.clear_active_connections!
       end
 
       threads.push thread
