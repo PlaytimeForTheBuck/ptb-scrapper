@@ -29,4 +29,21 @@ namespace :scrap do
   end
 end
 
+namespace :log do
+  task :test do
+    dirs = Dir.glob 'log/test.*.log'
+    exec "tail -f #{dirs.last}" unless dirs.empty?
+  end
+
+  task :dev do
+    dirs = Dir.glob 'log/dev.*.log'
+    exec "tail -f #{dirs.last}" unless dirs.empty?
+  end
+
+  task :prod do
+    dirs = Dir.glob 'log/prod.*.log'
+    exec "tail -f #{dirs.last}" unless dirs.empty?
+  end
+end
+
 task default: :test
