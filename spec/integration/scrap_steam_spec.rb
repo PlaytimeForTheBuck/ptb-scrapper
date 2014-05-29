@@ -49,7 +49,6 @@ describe 'scrap the real thing' do
 	  	scrapper.scrap_games_list(true)
 	  	file_attr = JSON.parse File.read('tmp/db/games.json'), symbolize_names: true
 	  	file_attr.sort! {|h| h[:steam_app_id]}
-	  	Log.debug file_attr
 	  	games_json = GameAr.all.to_json
 	  	games_attr = JSON.parse games_json, symbolize_names: true
 	  	games_attr.sort! {|h| h[:steam_app_id]}

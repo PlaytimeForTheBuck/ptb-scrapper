@@ -4,6 +4,7 @@ require 'webmock/rspec'
 require 'factory_girl'
 require 'shoulda'
 require 'fakefs/spec_helpers'
+require 'database_cleaner'
  
 RSpec.configure do |config|
   # ## Mock Framework
@@ -37,14 +38,19 @@ RSpec.configure do |config|
   config.before(:suite) { FactoryGirl.reload }
   config.include FactoryGirl::Syntax::Methods
 
+
   Mail.defaults do
     delivery_method :test
   end
 
+  DatabaseCleaner.strategy = :truncation
   config.around do |example|
-    ActiveRecord::Base.transaction do
-      example.run
-      raise ActiveRecord::Rollback
-    end
+    example.run
+    DatabaseCleaner.clean_with :truncation
+    
+    # ActiveRecord::Base.transaction do
+    #   example.run
+    #   raise ActiveRecord::Rollback
+    # end
   end
 end

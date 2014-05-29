@@ -3,7 +3,11 @@ StandaloneMigrations::Tasks.load_tasks
 
 desc 'Test'
 task :test do
-  exec 'guard --force_polling'
+  exec 'guard --force_polling -g rspec'
+end
+
+task :focus do
+  exec 'guard --force_polling -g focus_rspec'
 end
 
 namespace :scrap do

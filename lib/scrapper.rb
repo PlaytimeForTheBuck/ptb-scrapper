@@ -18,45 +18,66 @@ class Scrapper
   end
 
   def scrap(&block)
-    scrapping_groups.each_index do |i|
-      @group_index = i
-      @index = 0
-      group = scrapping_groups[@group_index]
-      group_data = nil
+    concurrent = 4
+    slices_sizes = (scrapping_groups.size / concurrent + 1).floor
 
-      finish = false
-      doc = nil
-      while not finish
-        url = get_url(doc, @index, @group_index)
+    concurrent_scrapping_groups = scrapping_groups.each_slice(slices_sizes)
 
-        @last_page = @index
-        @last_page_url = url
+    threads = []
 
-        finish = true if not url
-        if not finish
-          begin
-            raw_page = Net::HTTP.get(URI url)
-            doc = Nokogiri::HTML raw_page
-          rescue
-            raise NoServerConnection, @index
-          end
+    concurrent_scrapping_groups.each do |concurrent_scrapping_group|
+      thread = Thread.new do
+        concurrent_scrapping_group.each do |group|
+          index = 0
+          group_data = nil
 
-          finish = ! keep_scrapping_before?(doc)
-          if not finish
-            group_data = parse_page(doc, group, group_data, &block)
-            save_data(group_data, group, &block)
+          finish = false
+          doc = nil
+          while not finish
+            url = get_url(doc, index, group)
 
-            finish = ! keep_scrapping_after?(doc)
+            Log.debug url
+
+            @last_page = index
+            @last_page_url = url
+
+            finish = true if not url
             if not finish
-              @index += 1
+              begin
+                uri = URI url
+                request = Net::HTTP::Get.new(uri)
+                request.add_field 'Cookie', 'birthtime=724320001'
+                res = Net::HTTP.new(uri.host, uri.port).start do |http|
+                  http.request(request)
+                end
+                raw_page = res.body
+                doc = Nokogiri::HTML raw_page
+              rescue
+                raise NoServerConnection, index
+              end
+
+              finish = ! keep_scrapping_before?(doc)
+              Log.debug url
+              if not finish
+                group_data = parse_page(doc, group, group_data, &block)
+                save_data(group_data, group, &block)
+
+                finish = ! keep_scrapping_after?(doc)
+                if not finish
+                  index += 1
+                end
+              end
             end
           end
+
+          save_group_data(group_data, group, &block)
         end
       end
 
-      save_group_data(group_data, group, &block)
+      threads.push thread
     end
-    
+
+    threads.each(&:join)
   end
 
   private

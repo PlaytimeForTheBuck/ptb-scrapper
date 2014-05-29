@@ -7,8 +7,7 @@ class GameScrapper < Scrapper
     "http://store.steampowered.com/app/#{app_id}"
   end
 
-  def get_url(doc, index, group_index)
-    game = subjects[group_index]
+  def get_url(doc, index, game)
     game.steam_app_id
     self.class.url(game.steam_app_id)
   end

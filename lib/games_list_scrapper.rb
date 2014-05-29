@@ -7,7 +7,7 @@ class GamesListScrapper < Scrapper
     GamesListScrapper.new([]).get_url(nil, page-1, 0)
   end
 
-  def get_url(doc, index, group_index)
+  def get_url(doc, index, _)
     page = index + 1
     country = 'us'
     "http://store.steampowered.com/search/results?category1=998&sort_by=Name&sort_order=ASC&category1=998&cc=us&v5=1&page=#{page}"
@@ -46,6 +46,8 @@ class GamesListScrapper < Scrapper
 
   def save_data(games_attrs, group)
     new_games = []
+    old_games = []
+
     games_attrs.each do |attrs|
       game = get_by_id attrs[:steam_app_id]
       new_game = !game 
@@ -55,11 +57,12 @@ class GamesListScrapper < Scrapper
         add_subject game
       else
         game.assign_attributes attrs
+        old_games.push game
       end
       game.update_game_list!
     end
 
-    yield(new_games, last_page) if block_given?
+    yield(new_games, old_games, last_page) if block_given?
   end
 
   def keep_scrapping_after?(doc)

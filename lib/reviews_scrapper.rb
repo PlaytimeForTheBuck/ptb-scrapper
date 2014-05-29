@@ -6,8 +6,7 @@ class ReviewsScrapper < Scrapper
     "http://steamcommunity.com/app/#{app_id}/homecontent/?l=english&userreviewsoffset=#{offset}&p=#{page}&itemspage=2&screenshotspage=2&videospage=2&artpage=2&allguidepage=2&webguidepage=2&integratedguidepage=2&discussionspage=2&appHubSubSection=10&browsefilter=toprated&filterLanguage=default&searchText="
   end
 
-  def get_url(doc, index, group_index)
-    game = subjects[group_index]
+  def get_url(doc, index, game)
     app_id = game.steam_app_id
     offset = index * 10
     page = index + 1

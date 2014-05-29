@@ -20,9 +20,11 @@ class ScrappingOverlord
     Log.info '============================================'
     begin
       begin
-        scrapper.scrap do |games, page|
-          games.each(&:save!) if autosave
-          Log.info "#{games.size} games in page #{page}"
+        scrapper.scrap do |new_games, old_games, page|
+          # new_games.first.save! if autosave
+          new_games.each(&:save!) if autosave
+          old_games.each(&:save!) if autosave
+          Log.info "#{new_games.size} new games, #{old_games.size} old games in page #{page}"
         end
       rescue Scrapper::InvalidHTML => e
         Log.error "ERROR: Invalid HTML!", scrapper.last_page_url
@@ -45,7 +47,6 @@ class ScrappingOverlord
 
     begin
       scrapper.scrap do |game, reviews, finished_game|
-        Log.debug game, reviews[:positive].size, reviews[:negative].size, finished_game
         reviews_count = reviews[:positive].size + reviews[:negative].size
         finished = finished_game ? 'FINISHED!' : ''
         Log.info "#{game.name} / Reviews: #{reviews_count} #{finished}"

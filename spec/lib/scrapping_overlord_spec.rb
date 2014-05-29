@@ -25,7 +25,7 @@ describe ScrappingOverlord do
       game = build :game_ar
       GameAr.should_receive(:all).and_return([game])
       game.should_receive(:save!).and_return true
-      GamesListScrapper.any_instance.should_receive(:scrap).and_yield([game], 1)
+      GamesListScrapper.any_instance.should_receive(:scrap).and_yield([], [game], 1)
       overlord.scrap_games_list
     end
 
