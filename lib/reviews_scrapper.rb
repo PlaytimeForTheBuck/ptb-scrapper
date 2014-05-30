@@ -60,6 +60,7 @@ class ReviewsScrapper < Scrapper
       game.negative_reviews = reviews[:negative]
     end
     game.update_reviews!
+    queue_save game
     yield game, reviews, true if block_given?
   end
 

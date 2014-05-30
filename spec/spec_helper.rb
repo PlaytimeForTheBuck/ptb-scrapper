@@ -45,12 +45,12 @@ RSpec.configure do |config|
 
   DatabaseCleaner.strategy = :truncation
   config.around do |example|
-    example.run
-    DatabaseCleaner.clean_with :truncation
+    # DatabaseCleaner.clean_with :truncation
+    # example.run
     
-    # ActiveRecord::Base.transaction do
-    #   example.run
-    #   raise ActiveRecord::Rollback
-    # end
+    ActiveRecord::Base.transaction do
+      example.run
+      raise ActiveRecord::Rollback
+    end
   end
 end

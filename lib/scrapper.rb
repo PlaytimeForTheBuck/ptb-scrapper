@@ -17,71 +17,112 @@ class Scrapper
     end
   end
 
-  def scrap(&block)
-    concurrent = 10
-    slices_sizes = (scrapping_groups.size / concurrent + 1).floor
+  def scrap(autosave = false, concurrency = 5, &block)
+    @autosave = autosave
+    slices_sizes = (scrapping_groups.size / concurrency + 1).floor
 
     concurrent_scrapping_groups = scrapping_groups.each_slice(slices_sizes)
-
     threads = []
 
-    data_to_be_saved = []
-
-    concurrent_scrapping_groups.each do |concurrent_scrapping_group|
-      thread = Thread.new do
-        concurrent_scrapping_group.each do |group|
-          index = 0
-          group_data = nil
-
-          finish = false
-          doc = nil
-          while not finish
-            url = get_url(doc, index, group)
-
-            @last_page = index
-            @last_page_url = url
-
-            finish = true if not url
-            if not finish
-              begin
-                uri = URI url
-                request = Net::HTTP::Get.new(uri)
-                request.add_field 'Cookie', 'birthtime=724320001'
-                res = Net::HTTP.new(uri.host, uri.port).start do |http|
-                  http.request(request)
-                end
-                raw_page = res.body
-                doc = Nokogiri::HTML raw_page
-              rescue
-                raise NoServerConnection, index
-              end
-
-              finish = ! keep_scrapping_before?(doc)
-              if not finish
-                group_data = parse_page(doc, group, group_data, &block)
-                save_data(group_data, group, &block)
-
-                finish = ! keep_scrapping_after?(doc, group_data)
-                if not finish
-                  index += 1
-                end
-              end
-            end
-          end
-
-          save_group_data(group_data, group, &block)
-        end
-        
-        ActiveRecord::Base.clear_active_connections!
+    Thread.abort_on_exception = true
+    begin
+      concurrent_scrapping_groups.each do |concurrent_scrapping_group|
+        thread = create_scrapping_thread(concurrent_scrapping_group, &block)
+        threads.push thread
       end
-
-      threads.push thread
+    rescue NoServerConnection => e
+      # Restart the thread?
+      raise NoServerConnection
     end
+
+    # Thread.abort_on_exception = true
+
+    # concurrent_scrapping_groups.each do |concurrent_scrapping_group|
+
+    if @autosave
+      while threads.map(&:alive?).any?
+        sleep 1
+        save_from_queue
+      end
+      save_from_queue
+    end
+
+    # threads.join
+
+      #   ActiveRecord::Base.clear_active_connections!
+      # end
+
+    #   threads.push thread
+    # end
 
     threads.each(&:join)
   end
 
+  def queue_save(subject)
+    @to_save ||= []
+    @to_save.push subject
+  end
+
+  def save_from_queue
+    while @to_save.size > 0
+      subject = @to_save.shift
+      subject.save!
+    end
+  end
+
+  def create_scrapping_thread(concurrent_scrapping_group, &block)
+    Thread.new do
+      concurrent_scrapping_group.each do |group|
+        index = 0
+        group_data = nil
+
+        finish = false
+        doc = nil
+        while not finish
+          url = get_url(doc, index, group)
+
+          @last_page = index
+          @last_page_url = url
+
+          finish = true if not url
+          if not finish
+            begin
+              uri = URI url
+              request = Net::HTTP::Get.new(uri)
+              request.add_field 'Cookie', 'birthtime=724320001'
+              res = Net::HTTP.new(uri.host, uri.port).start do |http|
+                http.request(request)
+              end
+              raw_page = res.body
+              doc = Nokogiri::HTML raw_page
+            rescue
+              raise NoServerConnection, index
+            end
+
+            finish = ! keep_scrapping_before?(doc)
+            if not finish
+              group_data = parse_page(doc, group, group_data, &block)
+              save_data(group_data, group, &block)
+
+              finish = ! keep_scrapping_after?(doc, group_data)
+              if not finish
+                index += 1
+              end
+            end
+          end
+        end
+
+        save_group_data(group_data, group, &block)
+        ActiveRecord::Base.clear_active_connections!
+      end
+    end
+  end
+
   private
+
+  def scrap_thread
+
+  end
 
   # Abstract
   # @returns Parsed data hash
@@ -115,7 +156,7 @@ class Scrapper
   end
 
   # @param doc: Nokogiri doc
-  def keep_scrapping_after?(doc)
+  def keep_scrapping_after?(doc, group_data)
     true
   end
 

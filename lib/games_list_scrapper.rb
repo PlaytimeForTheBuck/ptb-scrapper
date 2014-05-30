@@ -60,12 +60,13 @@ class GamesListScrapper < Scrapper
         old_games.push game
       end
       game.update_game_list!
+      queue_save game
     end
 
     yield(new_games, old_games, last_page) if block_given?
   end
 
-  def keep_scrapping_after?(doc)
+  def keep_scrapping_after?(doc, group_data)
     e_next_page = doc.search('.search_pagination_right a').last
     raise InvalidHTML if e_next_page.nil?
     e_next_page.content == '>>'

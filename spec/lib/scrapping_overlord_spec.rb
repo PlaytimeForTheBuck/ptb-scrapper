@@ -24,7 +24,7 @@ describe ScrappingOverlord do
     it 'loads the games from Game and calls the GamesListScrapper' do
       game = build :game_ar
       GameAr.should_receive(:all).and_return([game])
-      game.should_receive(:save!).and_return true
+      # game.should_receive(:save!).and_return true
       GamesListScrapper.any_instance.should_receive(:scrap).and_yield([], [game], 1)
       overlord.scrap_games_list
     end
@@ -49,7 +49,7 @@ describe ScrappingOverlord do
     it 'loads the games from Game and calls the ReviewsScrapper' do
       game = build :game_ar
       GameAr.should_receive(:get_for_reviews_updating).and_return([game])
-      game.should_receive(:save!).and_return true
+      # game.should_receive(:save!).and_return true
       ReviewsScrapper.any_instance.should_receive(:scrap).and_yield(game, {positive: [1], negative: [1]}, true)
       overlord.scrap_reviews
     end
@@ -74,7 +74,7 @@ describe ScrappingOverlord do
     it 'loads the games from Game and calls GameScrapper' do
       game = build :game_ar
       GameAr.should_receive(:get_for_games_updating).and_return [game]
-      game.should_receive(:save!).and_return true
+      # game.should_receive(:save!).and_return true
       GameScrapper.any_instance.should_receive(:scrap).and_yield(game)
       overlord.scrap_games
     end
