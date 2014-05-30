@@ -8,6 +8,8 @@ class Scrapper
   class InvalidHTML < StandardError; end
   class InvalidGame < StandardError; end
   class InvalidReview < StandardError; end
+  class TooManyRedirects < StandardError; end
+  class UnexpectedResponse < StandardError; end
 
   def initialize(subjects)
     @to_save = []
@@ -91,18 +93,11 @@ class Scrapper
 
           @last_page = index
           @last_page_url = url
-          Log.debug url
 
           finish = true if not url
           if not finish
             begin
-              uri = URI url
-              request = Net::HTTP::Get.new(uri)
-              request.add_field 'Cookie', 'birthtime=724320001'
-              res = Net::HTTP.new(uri.host, uri.port).start do |http|
-                http.request(request)
-              end
-              raw_page = res.body
+              raw_page = get_page(url)
               doc = Nokogiri::HTML raw_page
             rescue
               raise NoServerConnection, index
@@ -129,8 +124,22 @@ class Scrapper
 
   private
 
-  def scrap_thread
+  def get_page(url, limit = 10)
+    Log.debug url, limit
 
+    uri = URI url
+    request = Net::HTTP::Get.new(uri)
+    request.add_field 'Cookie', 'birthtime=724320001'
+    response = Net::HTTP.new(uri.host, uri.port).start do |http|
+      http.request(request)
+    end
+
+    case response
+    when Net::HTTPSuccess then response.body
+    when Net::HTTPRedirection then get_page(response['location'], limit - 1)
+    else
+      raise UnexpectedResponse
+    end
   end
 
   # Abstract

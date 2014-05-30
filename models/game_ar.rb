@@ -47,59 +47,59 @@ class GameAr < ActiveRecord::Base
     year_ago   = Time.now - 3600*24*365       # 1 year ago
     years_ago  = Time.now - 3600*24*365*3     # 3 years ago
 
-    # a = updated_at_attribute
-    # query = where("#{a} IS NULL
-    # OR ( launch_date IS NULL AND #{a} < ? )
-    # OR ( launch_date > ? AND #{a} < ? )
-    # OR ( launch_date > ? AND #{a} < ? )
-    # OR ( launch_date > ? AND #{a} < ? )
-    # OR ( launch_date > ? AND #{a} < ? )
-    # OR (#{a} < ?)",
-    # months_ago,
-    # week_ago, day_ago,
-    # month_ago, week_ago,
-    # year_ago, month_ago,
-    # years_ago, months_ago,
-    # year_ago)
+    a = updated_at_attribute
+    query = order(:name).where("#{a} IS NULL
+    OR ( launch_date IS NULL AND #{a} < ? )
+    OR ( launch_date > ? AND #{a} < ? )
+    OR ( launch_date > ? AND #{a} < ? )
+    OR ( launch_date > ? AND #{a} < ? )
+    OR ( launch_date > ? AND #{a} < ? )
+    OR (#{a} < ?)",
+    months_ago,
+    week_ago, day_ago,
+    month_ago, week_ago,
+    year_ago, month_ago,
+    years_ago, months_ago,
+    year_ago)
 
     # Log.debug query.to_sql
 
-    # return query.load
+    return query
 
     # I'm gonna leave this just in case
 
-    order(:name).all.select do |game|
-      date     = game.read_attribute updated_at_attribute
-      # If no launch date we treat it like a year ago
-      launched = game.launch_date ? game.launch_date : year_ago
+    # order(:name).all.select do |game|
+    #   date     = game.read_attribute updated_at_attribute
+    #   # If no launch date we treat it like a year ago
+    #   launched = game.launch_date ? game.launch_date : year_ago
       
-      # The game was never updated?
-      if date == nil
-        true
-      # Launch date unknown
-      elsif launched == nil
-        date < months_ago
-      # Launched less than a week ago?
-      elsif launched > week_ago
-        # Updated more than a day ago?
-        date < day_ago
-      # Launched less than a month ago?
-      elsif launched > month_ago
-        # Updated more than a week ago?
-        date < week_ago
-      # Launched less than a year ago?
-      elsif launched > year_ago 
-        # Updated more than a month ago?
-        date < month_ago
-      # Launched less than 3 years ago?
-      elsif launched > years_ago
-        # Updated more than 3 months ago
-        date < months_ago
-      else # Launched more than 3 years ago?
-        # Updated more than a year ago
-        date < year_ago
-      end
-    end
+    #   # The game was never updated?
+    #   if date == nil
+    #     true
+    #   # Launch date unknown
+    #   elsif launched == nil
+    #     date < months_ago
+    #   # Launched less than a week ago?
+    #   elsif launched > week_ago
+    #     # Updated more than a day ago?
+    #     date < day_ago
+    #   # Launched less than a month ago?
+    #   elsif launched > month_ago
+    #     # Updated more than a week ago?
+    #     date < week_ago
+    #   # Launched less than a year ago?
+    #   elsif launched > year_ago 
+    #     # Updated more than a month ago?
+    #     date < month_ago
+    #   # Launched less than 3 years ago?
+    #   elsif launched > years_ago
+    #     # Updated more than 3 months ago
+    #     date < months_ago
+    #   else # Launched more than 3 years ago?
+    #     # Updated more than a year ago
+    #     date < year_ago
+    #   end
+    # end
   end
  
   ########## Validations ##########
