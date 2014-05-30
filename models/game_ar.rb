@@ -68,7 +68,7 @@ class GameAr < ActiveRecord::Base
 
     # I'm gonna leave this just in case
 
-    order(:name).load.select do |game|
+    order(:name).all.select do |game|
       date     = game.read_attribute updated_at_attribute
       # If no launch date we treat it like a year ago
       launched = game.launch_date ? game.launch_date : year_ago

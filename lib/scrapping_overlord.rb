@@ -21,9 +21,6 @@ class ScrappingOverlord
     begin
       begin
         scrapper.scrap(autosave) do |new_games, old_games, page|
-          # new_games.first.save! if autosave
-          # new_games.each(&:save!) if autosave
-          # old_games.each(&:save!) if autosave
           Log.info "#{new_games.size} new games, #{old_games.size} old games in page #{page}"
         end
       rescue Scrapper::InvalidHTML => e
@@ -48,19 +45,18 @@ class ScrappingOverlord
     begin
       counter = 0
       scrapper.scrap(autosave) do |game, reviews, finished_game|
-        reviews_count = reviews ? reviews[:positive].size + reviews[:negative].size : '???'
-        finished = finished_game ? 'FINISHED! ' : ''
         current_game = games.index(game) + 1
         pagination = "#{current_game}/#{games.size}".ljust(10)
         game_name = game.name[0...30].ljust(30)
+
+        reviews_count = reviews ? reviews[:positive].size + reviews[:negative].size : '???'
+        finished = finished_game ? 'FINISHED! ' : ''
         if finished_game
           counter += 1
           finished += "#{counter}/#{games.size}"
         end
 
         Log.info "#{game_name} - #{pagination} - Reviews: #{reviews_count} #{finished}"
-
-        # game.save! if autosave and finished_game
       end
     rescue Scrapper::InvalidHTML => e
       Log.error "ERROR: Invalid HTML!", scrapper.last_page_url
@@ -71,6 +67,10 @@ class ScrappingOverlord
     scrapper.subjects
   end
 
+  def log
+
+  end
+
   def scrap_games(autosave = true)
     games = GameAr.get_for_games_updating
     scrapper = GameScrapper.new games
@@ -78,12 +78,15 @@ class ScrappingOverlord
     Log.info "Scrapping categories: #{games.size} games to scrap!"
     Log.info '============================================'
     begin
+      counter = 0
       scrapper.scrap(autosave) do |game|
-        # game.save! if autosave
+        current_game = games.index(game) + 1
+        pagination = "#{current_game}/#{games.size}".ljust(10)
+        game_name = game.name[0...30].ljust(30)
+        counter += 1
+        categories = game.categories.size
 
-        categories = game.categories.join(', ')
-        current_page = games.index(game) + 1
-        Log.info "#{current_page}/#{games.size} - #{game.name} - Categories: #{categories}"
+        Log.info "#{game_name} - #{pagination} - Categories: #{categories} - #{counter}/#{games.size}"
       end
     rescue Scrapper::InvalidHTML => e
       Log.error 'ERROR: Invalid HTML!', scrapper.last_page_url

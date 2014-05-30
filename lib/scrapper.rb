@@ -10,6 +10,7 @@ class Scrapper
   class InvalidReview < StandardError; end
 
   def initialize(subjects)
+    @to_save = []
     @subjects = subjects
     @subjects_by_id = {}
     @subjects.each do |subject|
@@ -41,7 +42,7 @@ class Scrapper
 
     if @autosave
       while threads.map(&:alive?).any?
-        sleep 1
+        sleep 3
         save_from_queue
       end
       save_from_queue
@@ -59,14 +60,21 @@ class Scrapper
   end
 
   def queue_save(subject)
-    @to_save ||= []
     @to_save.push subject
   end
 
   def save_from_queue
-    while @to_save.size > 0
-      subject = @to_save.shift
-      subject.save!
+    begin
+      while @to_save.size > 0
+        @to_save.first.save!
+        @to_save.shift
+      end
+    rescue ActiveRecord::StatementInvalid => e
+      # I run this thing on a virtual machine
+      # and SQLite is on a network folder
+      # so it's really unstable. So we just try again.
+      sleep 0.25
+      save_from_queue
     end
   end
 
@@ -83,6 +91,7 @@ class Scrapper
 
           @last_page = index
           @last_page_url = url
+          Log.debug url
 
           finish = true if not url
           if not finish
