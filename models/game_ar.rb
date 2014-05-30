@@ -234,6 +234,10 @@ class GameAr < ActiveRecord::Base
     attrs[:playtime_deviation] = playtime_deviation
     attrs[:categories] = categories
     attrs[:steam_app_id] = id
+    attrs[:game_updated_at] = game_updated_at.to_i*1000
+    attrs[:reviews_updated_at] = reviews_updated_at.to_i*1000
+    attrs[:game_list_updated_at] = game_list_updated_at.to_i*1000
+    attrs[:launch_date] = launch_date.to_i*1000
 
     attrs
   end

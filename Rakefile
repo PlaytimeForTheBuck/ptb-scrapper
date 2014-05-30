@@ -1,5 +1,5 @@
-require 'standalone_migrations'
-StandaloneMigrations::Tasks.load_tasks
+require 'active_record_migrations'
+ActiveRecordMigrations.load_tasks
 
 desc 'Test'
 task :test do
@@ -30,6 +30,13 @@ namespace :scrap do
     require_relative './init'
     scrapper = ScrappingOverlord.new
     scrapper.scrap_reviews(true)
+  end
+
+  desc 'Save summary'
+  task :summary do
+    require_relative './init'
+    scrapper = ScrappingOverlord.new
+    scrapper.create_summary
   end
 end
 

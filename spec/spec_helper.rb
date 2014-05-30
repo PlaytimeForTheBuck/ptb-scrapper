@@ -3,6 +3,7 @@ require File.expand_path("../../init", __FILE__)
 require 'webmock/rspec'
 require 'factory_girl'
 require 'shoulda'
+require 'fakefs/safe'
 require 'fakefs/spec_helpers'
 require 'database_cleaner'
  

@@ -96,12 +96,8 @@ class Scrapper
 
           finish = true if not url
           if not finish
-            begin
-              raw_page = get_page(url)
-              doc = Nokogiri::HTML raw_page
-            rescue
-              raise NoServerConnection, index
-            end
+            raw_page = get_page(url)
+            doc = Nokogiri::HTML raw_page
 
             finish = ! keep_scrapping_before?(doc)
             if not finish
@@ -124,19 +120,28 @@ class Scrapper
 
   private
 
-  def get_page(url, limit = 10)
-    Log.debug url, limit
+  def get_page(url, redirectLimit = 10, retriesLimit = 10)
+    raise TooManyRedirects if redirectLimit == 0
+    raise NoServerConnection if retriesLimit == 0
 
-    uri = URI url
-    request = Net::HTTP::Get.new(uri)
-    request.add_field 'Cookie', 'birthtime=724320001'
-    response = Net::HTTP.new(uri.host, uri.port).start do |http|
-      http.request(request)
+    begin
+      uri = URI url
+      request = Net::HTTP::Get.new(uri)
+      request.add_field 'Cookie', 'birthtime=724320001'
+      response = Net::HTTP.new(uri.host, uri.port).start do |http|
+        http.request(request)
+      end
+    rescue Timeout::Error => e
+      Log.warn e.class.inspect
+      seconds = 10 + (10 - retriesLimit)*3
+      Log.warn 'NO SERVER CONNECTION! Retrying in 10 seconds'
+      sleep seconds if ENV['APP_ENV'] != 'test'
+      return get_page(url, redirectLimit, retriesLimit - 1)
     end
 
     case response
     when Net::HTTPSuccess then response.body
-    when Net::HTTPRedirection then get_page(response['location'], limit - 1)
+    when Net::HTTPRedirection then get_page(response['location'], redirectLimit - 1, retriesLimit)
     else
       raise UnexpectedResponse
     end

@@ -94,4 +94,21 @@ describe ScrappingOverlord do
       Mail::TestMailer.deliveries.should_not be_empty
     end
   end
+
+  describe '#create_summary' do 
+    it 'should generate the summary file' do
+      games = []
+      games << build(:game_ar)
+      games << build(:game_ar)
+      games << build(:game_ar)
+      GameAr.should_receive(:all).and_return(games)
+      overlord.create_summary
+      file_attr = JSON.parse File.read('tmp/db/games.json'), symbolize_names: true
+      file_attr.sort! {|h| h[:steam_app_id]}
+      games_json = games.to_json
+      games_attr = JSON.parse games_json, symbolize_names: true
+      games_attr.sort! {|h| h[:steam_app_id]}
+      file_attr.size.should eq games_attr.size
+    end
+  end
 end

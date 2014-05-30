@@ -462,5 +462,25 @@ describe GameAr do
       game.summary_attrs.should have_key :steam_app_id
       game.summary_attrs.should_not have_key :id
     end
+
+    it 'should return #game_updated_at as integer' do
+      game.game_updated_at = Time.now
+      game.summary_attrs[:game_updated_at].should eq game.game_updated_at.to_i*1000
+    end
+
+    it 'should return #reviews_updated_at as integer' do
+      game.reviews_updated_at = Time.now
+      game.summary_attrs[:reviews_updated_at].should eq game.reviews_updated_at.to_i*1000
+    end
+
+    it 'should return #game_list_updated_at as integer' do
+      game.game_list_updated_at = Time.now
+      game.summary_attrs[:game_list_updated_at].should eq game.game_list_updated_at.to_i*1000
+    end
+
+    it 'should return #launch_date as integer' do
+      game.launch_date = Time.now
+      game.summary_attrs[:launch_date].should eq game.launch_date.to_i*1000
+    end
   end
 end

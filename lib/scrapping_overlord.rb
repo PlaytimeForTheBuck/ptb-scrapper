@@ -4,12 +4,7 @@ class ScrappingOverlord
   NOTIFICATIONS_EMAIL_FROM = 'PlaytimeForTheBuck ScrapperBot <scrapper@playtimeforthebuck.com>'
 
   def initialize(relative_file_name = 'db/games.json')
-    file_name = relative_file_name#File.expand_path relative_file_name, __FILE__
-    file_path = File.dirname(file_name)
-
-    FileUtils.mkpath file_path if not File.directory? file_path
-
-    @file = File.open file_name, 'w'
+    @file_name = relative_file_name#File.expand_path relative_file_name, __FILE__
   end
 
   def scrap_games_list(autosave = true)
@@ -31,12 +26,15 @@ class ScrappingOverlord
       Log.error 'ERROR: No server connection on page next to the previous page'
     end
 
-    create_summary scrapper.subjects if autosave
     scrapper.subjects
   end
 
   def scrap_reviews(autosave = true)
     games = GameAr.get_for_reviews_updating
+    # if games.size == 0 and ENV['APP_ENV'] == 'production'
+    #   Log.info 'No games to scrap! Selecting 10 games randomly to disperse the scrapping dates!'
+    #   games = GameAr.all.sample(10)
+    # end
     scrapper = ReviewsScrapper.new games
 
     Log.info "Scrapping reviews: #{games.size} games to scrap!"
@@ -44,26 +42,34 @@ class ScrappingOverlord
 
     begin
       counter = 0
+      times = []
+      previous_time = Time.now.to_i
       scrapper.scrap(autosave) do |game, reviews, finished_game|
-        current_game = games.index(game) + 1
-        pagination = "#{current_game}/#{games.size}".ljust(10)
         game_name = game.name[0...30].ljust(30)
 
         reviews_count = reviews ? reviews[:positive].size + reviews[:negative].size : '???'
-        finished = finished_game ? 'FINISHED! ' : ''
+        finished = ''
         if finished_game
           counter += 1
-          finished += "#{counter}/#{games.size}"
+          
+
+          current_time = Time.now.to_i
+          times.unshift current_time - previous_time
+          times = times[0...25]
+          average_time = (times.reduce(:+) / Float(times.size))
+          previous_time = current_time
+          time_left_minutes = (average_time*(games.size-counter) / 60).round(2)
+
+          finished = "FINISHED! #{counter}/#{games.size} - #{time_left_minutes} minutes left"
         end
 
-        Log.info "#{game_name} - #{pagination} - Reviews: #{reviews_count} #{finished}"
+        Log.info "#{game_name} - Reviews: #{reviews_count} #{finished}"
       end
     rescue Scrapper::InvalidHTML => e
       Log.error "ERROR: Invalid HTML!", scrapper.last_page_url
       send_error_email e, scrapper.last_page, scrapper.last_page_url
     end
 
-    create_summary scrapper.subjects if autosave
     scrapper.subjects
   end
 
@@ -73,6 +79,10 @@ class ScrappingOverlord
 
   def scrap_games(autosave = true)
     games = GameAr.get_for_games_updating
+    # if games.size == 0 and ENV['APP_ENV'] == 'production'
+    #   Log.info 'No games to scrap! Selecting 10 games randomly to disperse the scrapping dates!'
+    #   games = GameAr.all.sample(10)
+    # end
     scrapper = GameScrapper.new games
 
     Log.info "Scrapping categories: #{games.size} games to scrap!"
@@ -93,18 +103,18 @@ class ScrappingOverlord
       send_error_email e, scrapper.last_page, scrapper.last_page_url
     end
 
-    create_summary scrapper.subjects if autosave
     scrapper.subjects
   end
 
-  def close
-    @file.close
-  end
+  def create_summary(games = GameAr.all)
+    file_path = File.dirname(@file_name)
+    FileUtils.mkpath file_path if not File.directory? file_path
 
-  def create_summary(games)
+    @file = File.open @file_name, 'w'
     @file.truncate 0
     @file.rewind
     @file.write games.to_json
+    @file.close
   end
 
   private

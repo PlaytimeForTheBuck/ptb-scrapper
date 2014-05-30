@@ -3,6 +3,7 @@ require 'nokogiri'
 require 'yell'
 require 'mail'
 require 'active_record'
+require 'yaml'
 
 require_relative 'lib/array'
 require_relative 'lib/scrapper'
@@ -28,7 +29,6 @@ Log = Yell.new do |l|
 end
 
 NOTIFICATIONS_EMAIL_TO = 'zequez@gmail.com'
-
 MAX_REVIEWS = 1000
 
 Mail.defaults do
@@ -36,5 +36,7 @@ Mail.defaults do
 end
 
 I18n.enforce_available_locales = false
+
+db_config = YAML.load_file('./db/config.yml')
 
 ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: "db/#{env}.sqlite3", timeout: 30000, pool: 15)

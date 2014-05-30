@@ -24,7 +24,6 @@ describe 'scrap the real thing' do
 	end
 
 	after :each do
-		scrapper.close
 		# FileUtils.rm_rf('tmp/db')
 	end
 
@@ -43,16 +42,6 @@ describe 'scrap the real thing' do
 	  it 'should save it to a the DB' do  	
 	  	scrapper.scrap_games_list(true)
 	  	GameAr.all.size.should eq 50
-	  end
-
-	  it 'should generate the summary file' do
-	  	scrapper.scrap_games_list(true)
-	  	file_attr = JSON.parse File.read('tmp/db/games.json'), symbolize_names: true
-	  	file_attr.sort! {|h| h[:steam_app_id]}
-	  	games_json = GameAr.all.to_json
-	  	games_attr = JSON.parse games_json, symbolize_names: true
-	  	games_attr.sort! {|h| h[:steam_app_id]}
-	  	file_attr.size.should eq games_attr.size
 	  end
 	end
 
