@@ -1,4 +1,4 @@
-ENV['APP_ENV'] = 'test'
+APP_ENV = 'test'
 require File.expand_path("../../init", __FILE__)
 require 'webmock/rspec'
 require 'factory_girl'
