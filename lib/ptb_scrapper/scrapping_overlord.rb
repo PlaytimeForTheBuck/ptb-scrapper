@@ -96,7 +96,7 @@ module PtbScrapper
       scrapper.subjects
     end
 
-    def create_summary(games = @games_class.all)
+    def create_summary(games = @games_class.get_for_summary)
       file_path = File.dirname(@file_name)
       FileUtils.mkpath file_path if not File.directory? file_path
 

@@ -126,7 +126,7 @@ module PtbScrapper
         games << build(:game_ar)
         games << build(:game_ar)
         games << build(:game_ar)
-        Models::GameAr.should_receive(:all).and_return(games)
+        Models::GameAr.should_receive(:get_for_summary).and_return(games)
         overlord.create_summary
         file_attr = JSON.parse File.read('tmp/db/games.json'), symbolize_names: true
         file_attr.sort! {|h| h[:steam_app_id]}

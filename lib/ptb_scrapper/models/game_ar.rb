@@ -33,6 +33,10 @@ module PtbScrapper
         get_for_x_updating(:game_updated_at)
       end
 
+      def self.get_for_summary
+        order(:name)
+      end
+
       # Gets the games that need an update based on a last updated_at attribute
       # By the age of the game
       # the time for updating is:
