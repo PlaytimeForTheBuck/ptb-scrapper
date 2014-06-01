@@ -27,13 +27,13 @@ describe PtbScrapper do
     end
   end
 
-  describe '.init' do
+  describe '.reset' do
     it 'should reset the configuration' do
       PtbScrapper.setup do |c|
         c.log_directory = 'rsarsa'
       end
       PtbScrapper.config.log_directory.should eq 'rsarsa'
-      PtbScrapper.init
+      PtbScrapper.reset
       PtbScrapper.config.log_directory.should_not eq 'rsarsa'
     end
 
@@ -43,7 +43,7 @@ describe PtbScrapper do
         config.logger = new_logger
       end
       PtbScrapper::Logger.logger.should eq new_logger
-      PtbScrapper.init
+      PtbScrapper.reset
       PtbScrapper::Logger.logger.should_not eq new_logger
     end
   end

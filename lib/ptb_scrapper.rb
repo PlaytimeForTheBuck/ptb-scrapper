@@ -29,8 +29,7 @@ module PtbScrapper
     end
 
     def init
-      self.config = Configuration.new
-      Logger.set_default_logger
+      self.config ||= Configuration.new
 
       I18n.enforce_available_locales = false 
       
@@ -40,10 +39,19 @@ module PtbScrapper
       end
     end
 
+    def reset
+      self.config = Configuration.new
+      Logger.set_default_logger
+    end
+
     def setup
       init
       self.config = Configuration.new
       yield config
+    end
+
+    def load_rake_tasks
+      load 'ptb_scrapper/tasks.rake'
     end
   end
 end

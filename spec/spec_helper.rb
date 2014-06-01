@@ -51,7 +51,7 @@ RSpec.configure do |config|
   config.around do |example|
     # DatabaseCleaner.clean_with :truncation
     # example.run
-    
+    PtbScrapper.reset
     ActiveRecord::Base.transaction do
       example.run
       raise ActiveRecord::Rollback

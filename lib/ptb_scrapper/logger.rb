@@ -23,7 +23,8 @@ module PtbScrapper
           l.adapter :datefile,
                     log_file,
                     keep: 5,
-                    date_pattern: '%Y-%m'
+                    date_pattern: '%Y-%m',
+                    symlink: false # Cause I'm running in a VM shared folder
 
           if APP_ENV == 'development'
             l.adapter STDOUT, format: '[%5L] %m'
