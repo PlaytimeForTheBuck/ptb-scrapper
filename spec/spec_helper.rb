@@ -1,11 +1,15 @@
-APP_ENV = 'test'
-require File.expand_path("../../init", __FILE__)
+ENV['APP_ENV'] = 'test'
+
+require 'ptb_scrapper' 
+
 require 'webmock/rspec'
 require 'factory_girl'
 require 'shoulda'
 require 'fakefs/safe'
 require 'fakefs/spec_helpers'
 require 'database_cleaner'
+
+PtbScrapper.init
  
 RSpec.configure do |config|
   # ## Mock Framework
@@ -38,7 +42,6 @@ RSpec.configure do |config|
   # Factory girl
   config.before(:suite) { FactoryGirl.reload }
   config.include FactoryGirl::Syntax::Methods
-
 
   Mail.defaults do
     delivery_method :test

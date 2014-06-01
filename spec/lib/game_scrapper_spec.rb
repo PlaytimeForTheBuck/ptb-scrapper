@@ -1,6 +1,12 @@
 require 'spec_helper'
 
-describe GameScrapper do
+describe PtbScrapper::Scrappers::GameScrapper do
+  let(:klass) { PtbScrapper::Scrappers::GameScrapper }
+
+  def build_scrapper(games)
+    klass.new(games, PtbScrapper::Models::GameAr)
+  end
+
   def fixture(name)
     file_name = File.expand_path("../../fixtures/#{name}.html", __FILE__)
     File.read file_name
@@ -12,7 +18,7 @@ describe GameScrapper do
   end
 
   def stub_game_request(game, name)
-    stub_page(GameScrapper.url(game.steam_app_id), name)
+    stub_page(klass.url(game.steam_app_id), name)
   end
 
   describe '#scrap' do
@@ -20,7 +26,7 @@ describe GameScrapper do
       it 'updates the categories of the game' do
         game = build :game_ar
         stub_game_request(game, 'categories_valid')
-        scrapper = GameScrapper.new [game]
+        scrapper = build_scrapper [game]
         scrapper.scrap
         game.categories.should eq ['Turn-based Strategy', 'Strategy', 'One More Turn',
                                    'Turn-based', 'Addictive', 'Multiplayer',
@@ -32,7 +38,7 @@ describe GameScrapper do
         game = build :game_ar
         game.game_updated_at = time_now
         stub_game_request(game, 'categories_valid')
-        scrapper = GameScrapper.new [game]
+        scrapper = build_scrapper [game]
         scrapper.scrap
         game.game_updated_at.should_not eq time_now
       end
@@ -42,7 +48,7 @@ describe GameScrapper do
       it 'should ignore the game' do
         game = build :game_ar
         stub_game_request(game, 'categories_region_locked_error')
-        scrapper = GameScrapper.new [game]
+        scrapper = build_scrapper [game]
         scrapper.scrap
         game.categories.should eq []
       end
@@ -52,8 +58,8 @@ describe GameScrapper do
       it 'should raise an InvalidHTML error' do
         game = build :game_ar
         stub_game_request(game, 'categories_invalid')
-        scrapper = GameScrapper.new [game]
-        -> {scrapper.scrap}.should raise_error Scrapper::InvalidHTML
+        scrapper = build_scrapper [game]
+        -> {scrapper.scrap}.should raise_error PtbScrapper::Scrappers::InvalidHTML
       end
     end
 

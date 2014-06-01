@@ -1,6 +1,12 @@
 require 'spec_helper'
 
-describe ReviewsScrapper do
+describe PtbScrapper::Scrappers::ReviewsScrapper do
+  let(:klass) { PtbScrapper::Scrappers::ReviewsScrapper }
+
+  def build_scrapper(games)
+    klass.new(games, PtbScrapper::Models::GameAr)
+  end
+
   def fixture(name)
     file_name = File.expand_path("../../fixtures/#{name}.html", __FILE__)
     File.read file_name
@@ -17,19 +23,19 @@ describe ReviewsScrapper do
 
   describe '#new' do
     it 'should be created with a list of previous games' do
-      games = [GameAr.new, GameAr.new, GameAr.new]
-      ReviewsScrapper.new games
+      games = [build(:game_ar), build(:game_ar), build(:game_ar)]
+      build_scrapper games
     end
   end
 
   describe '#scrap' do
     it 'updates the reviews_updated_at attribute' do
-      games = [GameAr.new, GameAr.new, GameAr.new]
-      stub_empty ReviewsScrapper.url(games[0].steam_app_id)
-      stub_empty ReviewsScrapper.url(games[1].steam_app_id)
-      stub_empty ReviewsScrapper.url(games[2].steam_app_id)
+      games = [build(:game_ar), build(:game_ar), build(:game_ar)]
+      stub_empty klass.url(games[0].steam_app_id)
+      stub_empty klass.url(games[1].steam_app_id)
+      stub_empty klass.url(games[2].steam_app_id)
 
-      scrapper = ReviewsScrapper.new games
+      scrapper = build_scrapper games
       time_now = Time.now
       scrapper.scrap
       games[0].reviews_updated_at.should > time_now
@@ -40,8 +46,8 @@ describe ReviewsScrapper do
     context 'there are no reviews' do
       it 'does not fill any review' do
         game = build :game_ar
-        stub_request(:get, ReviewsScrapper.url(game.steam_app_id)).to_return body: ''
-        scrapper = ReviewsScrapper.new [game]
+        stub_request(:get, klass.url(game.steam_app_id)).to_return body: ''
+        scrapper = build_scrapper [game]
         scrapper.scrap
         game.positive_reviews.size.should eq 0
         game.negative_reviews.size.should eq 0
@@ -51,27 +57,27 @@ describe ReviewsScrapper do
     context 'there are reviews' do
       it 'fills the reviews' do
         game = build :game_ar
-        scrapper = ReviewsScrapper.new [game]
-        stub_page ReviewsScrapper.url(game.steam_app_id), 'reviews_single_page'
-        stub_empty ReviewsScrapper.url(game.steam_app_id, 2)
+        scrapper = build_scrapper [game]
+        stub_page klass.url(game.steam_app_id), 'reviews_single_page'
+        stub_empty klass.url(game.steam_app_id, 2)
         scrapper.scrap
         game.reviews.size.should eq 10
       end
 
       it 'ignores invalid review without played time' do
         game = build :game_ar
-        scrapper = ReviewsScrapper.new [game]
-        stub_page ReviewsScrapper.url(game.steam_app_id), 'reviews_single_page_one_without_hours'
-        stub_empty ReviewsScrapper.url(game.steam_app_id, 2)
+        scrapper = build_scrapper [game]
+        stub_page klass.url(game.steam_app_id), 'reviews_single_page_one_without_hours'
+        stub_empty klass.url(game.steam_app_id, 2)
         scrapper.scrap
         game.reviews.size.should eq 9
       end
 
       it 'fills the positive and negative reviews' do
         game = build :game_ar
-        scrapper = ReviewsScrapper.new [game]
-        stub_page ReviewsScrapper.url(game.steam_app_id), 'reviews_single_page_3_pos_7_neg'
-        stub_empty ReviewsScrapper.url(game.steam_app_id, 2)
+        scrapper = build_scrapper [game]
+        stub_page klass.url(game.steam_app_id), 'reviews_single_page_3_pos_7_neg'
+        stub_empty klass.url(game.steam_app_id, 2)
         scrapper.scrap
         game.positive_reviews.size.should eq 3
         game.negative_reviews.size.should eq 7
@@ -79,9 +85,9 @@ describe ReviewsScrapper do
 
       it 'reads every review playtime' do
         game = build :game_ar
-        scrapper = ReviewsScrapper.new [game]
-        stub_page ReviewsScrapper.url(game.steam_app_id), 'reviews_single_page_3_pos_7_neg'
-        stub_empty ReviewsScrapper.url(game.steam_app_id, 2)
+        scrapper = build_scrapper [game]
+        stub_page klass.url(game.steam_app_id), 'reviews_single_page_3_pos_7_neg'
+        stub_empty klass.url(game.steam_app_id, 2)
         scrapper.scrap
         game.positive_reviews[0].should eq 19.0
         game.positive_reviews[1].should eq 15.7
@@ -99,9 +105,9 @@ describe ReviewsScrapper do
         it 'should replace the previous reviews' do
           game = build :game_ar
           game.positive_reviews = [1,2,3]
-          scrapper = ReviewsScrapper.new [game]
-          stub_page ReviewsScrapper.url(game.steam_app_id), 'reviews_single_page'
-          stub_empty ReviewsScrapper.url(game.steam_app_id, 2)
+          scrapper = build_scrapper [game]
+          stub_page klass.url(game.steam_app_id), 'reviews_single_page'
+          stub_empty klass.url(game.steam_app_id, 2)
           scrapper.scrap
           game.reviews.size.should eq 10
         end
@@ -111,9 +117,9 @@ describe ReviewsScrapper do
     context 'there is a review flagged as abusive' do
       it 'should ignore it' do
         game = build :game_ar
-        scrapper = ReviewsScrapper.new [game]
-        stub_page ReviewsScrapper.url(game.steam_app_id), 'reviews_flagged_as_abusive'
-        stub_empty ReviewsScrapper.url(game.steam_app_id, 2)
+        scrapper = build_scrapper [game]
+        stub_page klass.url(game.steam_app_id), 'reviews_flagged_as_abusive'
+        stub_empty klass.url(game.steam_app_id, 2)
         scrapper.scrap
         game.reviews.size.should eq 1
       end
@@ -123,22 +129,22 @@ describe ReviewsScrapper do
     context 'there are many pages' do
       it 'reads the reviews from each page' do
         game = build :game_ar
-        scrapper = ReviewsScrapper.new [game]
-        stub_page ReviewsScrapper.url(game.steam_app_id, 1), 'reviews_page_1'
-        stub_page ReviewsScrapper.url(game.steam_app_id, 2), 'reviews_page_2'
-        stub_page ReviewsScrapper.url(game.steam_app_id, 3), 'reviews_page_3'
-        stub_empty ReviewsScrapper.url(game.steam_app_id, 4)
+        scrapper = build_scrapper [game]
+        stub_page klass.url(game.steam_app_id, 1), 'reviews_page_1'
+        stub_page klass.url(game.steam_app_id, 2), 'reviews_page_2'
+        stub_page klass.url(game.steam_app_id, 3), 'reviews_page_3'
+        stub_empty klass.url(game.steam_app_id, 4)
         scrapper.scrap
         game.reviews.size.should eq 30
       end
 
       it 'calls the yield block for each page' do
         game = build :game_ar
-        scrapper = ReviewsScrapper.new [game]
-        stub_page ReviewsScrapper.url(game.steam_app_id, 1), 'reviews_page_1'
-        stub_page ReviewsScrapper.url(game.steam_app_id, 2), 'reviews_page_2'
-        stub_page ReviewsScrapper.url(game.steam_app_id, 3), 'reviews_page_3'
-        stub_empty ReviewsScrapper.url(game.steam_app_id, 4)
+        scrapper = build_scrapper [game]
+        stub_page klass.url(game.steam_app_id, 1), 'reviews_page_1'
+        stub_page klass.url(game.steam_app_id, 2), 'reviews_page_2'
+        stub_page klass.url(game.steam_app_id, 3), 'reviews_page_3'
+        stub_empty klass.url(game.steam_app_id, 4)
 
         expect { |b| scrapper.scrap(&b) }.to yield_control.exactly(4).times
       end
@@ -147,8 +153,8 @@ describe ReviewsScrapper do
 
   describe '#subjects' do
     it 'should give the list of games that was given to it' do
-      games = [GameAr.new, GameAr.new]
-      scrapper = ReviewsScrapper.new games
+      games = [build(:game_ar), build(:game_ar)]
+      scrapper = build_scrapper games
       scrapper.subjects.should eq games
     end
   end

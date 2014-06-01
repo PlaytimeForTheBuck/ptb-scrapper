@@ -1,3 +1,9 @@
+GIT
+  remote: http://github.com/Zequez/fakefs
+  revision: ebbba0e54acdcc4d98124e90a0c969fe3313f90d
+  specs:
+    fakefs (0.5.2)
+
 PATH
   remote: .
   specs:
@@ -50,7 +56,6 @@ GEM
     erubis (2.7.0)
     factory_girl (4.4.0)
       activesupport (>= 3.0.0)
-    fakefs (0.5.2)
     ffi (1.9.3)
     formatador (0.2.5)
     guard (2.6.1)
@@ -132,7 +137,7 @@ DEPENDENCIES
   active_record_migrations
   database_cleaner
   factory_girl
-  fakefs
+  fakefs!
   guard
   guard-rspec
   ptb_scrapper!
