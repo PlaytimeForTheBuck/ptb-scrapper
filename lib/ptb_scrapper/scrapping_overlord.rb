@@ -33,10 +33,6 @@ module PtbScrapper
 
     def scrap_reviews(autosave = true)
       games = @games_class.get_for_reviews_updating
-      # if games.size == 0 and ENV['APP_ENV'] == 'production'
-      #   Log.info 'No games to scrap! Selecting 10 games randomly to disperse the scrapping dates!'
-      #   games = GameAr.all.sample(10)
-      # end
       scrapper = Scrappers::ReviewsScrapper.new games, @games_class
 
       logger.info "Scrapping reviews: #{games.size} games to scrap!"
@@ -77,10 +73,6 @@ module PtbScrapper
 
     def scrap_games(autosave = true)
       games = @games_class.get_for_games_updating
-      # if games.size == 0 and ENV['APP_ENV'] == 'production'
-      #   Log.info 'No games to scrap! Selecting 10 games randomly to disperse the scrapping dates!'
-      #   games = GameAr.all.sample(10)
-      # end
       scrapper = Scrappers::GameScrapper.new games, @games_class
 
       logger.info "Scrapping categories: #{games.size} games to scrap!"

@@ -18,9 +18,7 @@ require 'ptb_scrapper/models/game_ar'
 require 'ptb_scrapper/models/price'
 require 'ptb_scrapper/scrapping_overlord'
 
-module PtbScrapper
-  APP_ENV = ENV['APP_ENV'] || ENV['RAILS_ENV'] || 'development'
-  
+module PtbScrapper  
   class << self
     attr_accessor :config
 
@@ -35,7 +33,7 @@ module PtbScrapper
       
       if not ActiveRecord::Base.connected?
         db_config = YAML.load_file('./db/config.yml')
-        ActiveRecord::Base.establish_connection db_config[APP_ENV]
+        ActiveRecord::Base.establish_connection db_config[PtbScrapper.env]
       end
     end
 
@@ -52,6 +50,10 @@ module PtbScrapper
 
     def load_rake_tasks
       load 'ptb_scrapper/tasks.rake'
+    end
+
+    def env
+      ENV['APP_ENV'] || ENV['RAILS_ENV'] || 'development'
     end
   end
 end

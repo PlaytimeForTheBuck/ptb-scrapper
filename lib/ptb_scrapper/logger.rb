@@ -16,7 +16,7 @@ module PtbScrapper
 
     def self.set_default_logger
       @logger = begin
-        log_file = File.join PtbScrapper.config.log_directory, "#{APP_ENV}.log"
+        log_file = File.join PtbScrapper.config.log_directory, "#{PtbScrapper.env}.log"
         FileUtils.mkpath PtbScrapper.config.log_directory
 
         Yell.new do |l|
@@ -26,7 +26,7 @@ module PtbScrapper
                     date_pattern: '%Y-%m',
                     symlink: false # Cause I'm running in a VM shared folder
 
-          if APP_ENV == 'development'
+          if PtbScrapper.env == 'development'
             l.adapter STDOUT, format: '[%5L] %m'
           end
         end

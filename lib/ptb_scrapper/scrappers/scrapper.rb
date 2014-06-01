@@ -132,7 +132,7 @@ module PtbScrapper
           logger.warn e.class.inspect
           seconds = 10 + (10 - retriesLimit)*3
           logger.warn 'NO SERVER CONNECTION! Retrying in 10 seconds'
-          sleep seconds if ENV['APP_ENV'] != 'test'
+          sleep seconds if PtbScrapper.env != 'test'
           return get_page(url, redirectLimit, retriesLimit - 1)
         end
 
