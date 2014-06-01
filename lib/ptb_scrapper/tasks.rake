@@ -2,7 +2,7 @@ task :environment do
   PtbScrapper.init
 end
 
-namespace :scrap do
+namespace :scrapper do
   desc 'Scrap the games list to get new games, prices, and stuff'
   task games_list: :environment do
     scrapper = PtbScrapper::ScrappingOverlord.new
@@ -25,5 +25,14 @@ namespace :scrap do
   task summary: :environment  do
     scrapper = PtbScrapper::ScrappingOverlord.new
     scrapper.create_summary
+  end
+
+  desc 'Create migration files'
+  task :migrations do
+    migration_name = Time.now.strftime('%Y%m%d%H%M%S') + '_ptb_scrapper_migration.rb'
+    template_migration = File.join PtbScrapper.root, 'lib/ptb_scrapper/ptb_scrapper_migration.rb'
+    destination_migration = File.join 'db/migrations', migration_name
+    FileUtils.mkpath 'db/migrations'
+    FileUtils.copy template_migration, destination_migration
   end
 end

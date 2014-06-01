@@ -55,5 +55,9 @@ module PtbScrapper
     def env
       ENV['APP_ENV'] || ENV['RAILS_ENV'] || 'development'
     end
+
+    def root
+      File.expand_path('../..', __FILE__)
+    end
   end
 end
