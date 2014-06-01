@@ -2,8 +2,8 @@ Gem::Specification.new do |s|
   s.authors = ['Ezequiel Adrián Schwartzman']
   s.email = 'zequez@gmail.com'
   s.name = 'ptb_scrapper'
-  s.version = "0.1.0"
-  s.date = '2014-05-30'
+  s.version = "0.2.0"
+  s.date = '2014-06-01'
   s.summary = 'Ste*m scrapper for PlayTimeForTheBuck'
   s.files = [
     "Gemfile"
