@@ -105,6 +105,8 @@ module PtbScrapper
       @file.rewind
       @file.write games.to_json
       @file.close
+
+      logger.info "Generated summary file!"
     end
 
     private
