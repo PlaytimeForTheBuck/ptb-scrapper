@@ -4,8 +4,6 @@ module PtbScrapper
   class ScrappingOverlord
     include Logger
 
-    NOTIFICATIONS_EMAIL_FROM = 'PlaytimeForTheBuck ScrapperBot <scrapper@playtimeforthebuck.com>'
-
     def initialize(relative_file_name = 'db/games.json', games_class = Models::GameAr)
       @games_class = games_class
       @file_name = relative_file_name#File.expand_path relative_file_name, __FILE__
@@ -131,9 +129,12 @@ module PtbScrapper
 
       backtrace = $!.backtrace.join("\n");
 
+      from_email = PtbScrapper.config.notifications_email_from
+      from_name = PtbScrapper.config.notifications_email_from_name
+
       Mail.deliver do
-        from NOTIFICATIONS_EMAIL_FROM
-        to NOTIFICATIONS_EMAIL_TO
+        from "#{from_name} <#{from_email}>"
+        to PtbScrapper.config.notifications_email_to
         subject 'There was an HTML error on the PlaytimeForTheBuck scrapper!'
         body %Q{
           Here is the scrapped page attached, and the traceback, 

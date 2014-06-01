@@ -22,5 +22,11 @@ module PtbScrapper
     def logger
       Logger.logger
     end
+
+    def log_directory=(directory)
+      @log_directory = directory
+      Logger.set_default_logger
+      @log_directory
+    end
   end
 end

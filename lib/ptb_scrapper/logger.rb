@@ -5,10 +5,20 @@ module PtbScrapper
     end
 
     def self.logger
-      @logger ||= begin
+      @logger ||= set_default_logger
+    end
+
+    def self.logger=(logger)
+      @logger = logger
+    end
+
+    private
+
+    def self.set_default_logger
+      @logger = begin
         log_file = File.join PtbScrapper.config.log_directory, "#{APP_ENV}.log"
         FileUtils.mkpath PtbScrapper.config.log_directory
-        p log_file
+
         Yell.new do |l|
           l.adapter :datefile,
                     log_file,
@@ -20,10 +30,6 @@ module PtbScrapper
           end
         end
       end
-    end
-
-    def self.logger=(logger)
-      @logger = logger
     end
   end
 end

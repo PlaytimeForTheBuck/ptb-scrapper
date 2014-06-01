@@ -18,21 +18,19 @@ require 'ptb_scrapper/models/game_ar'
 require 'ptb_scrapper/models/price'
 require 'ptb_scrapper/scrapping_overlord'
 
-
 module PtbScrapper
   APP_ENV = ENV['APP_ENV'] || ENV['RAILS_ENV'] || 'development'
-  NOTIFICATIONS_EMAIL_TO = 'zequez@gmail.com'
-  MAX_REVIEWS = 1000
   
   class << self
     attr_accessor :config
 
+    Mail.defaults do
+      delivery_method :smtp, enable_starttls_auto: false
+    end
+
     def init
       self.config = Configuration.new
-
-      Mail.defaults do
-        delivery_method :smtp, enable_starttls_auto: false
-      end
+      Logger.set_default_logger
 
       I18n.enforce_available_locales = false 
       
@@ -43,6 +41,7 @@ module PtbScrapper
     end
 
     def setup
+      init
       self.config = Configuration.new
       yield config
     end

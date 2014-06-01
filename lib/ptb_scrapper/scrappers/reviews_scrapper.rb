@@ -72,7 +72,7 @@ module PtbScrapper
 
       def keep_scrapping_after?(doc, group_data)
         return true if group_data.nil?
-        group_data[:positive].size + group_data[:negative].size < MAX_REVIEWS
+        group_data[:positive].size + group_data[:negative].size < PtbScrapper.config.max_reviews
       end
     end
   end

@@ -55,19 +55,43 @@ module PtbScrapper
         overlord.scrap_reviews
       end
 
-      it 'should log an error if the HTML is invalid' do
-        Logger.logger.should_receive(:error).with(/ERROR/i, /http/).at_least(1)
-        Models::GameAr.should_receive(:get_for_reviews_updating).and_return([])
-        Scrappers::ReviewsScrapper.any_instance.should_receive(:scrap).and_raise(Scrappers::InvalidHTML)
-        overlord.scrap_reviews
-      end
+      context 'an error occurs' do
+        it 'should log an error if the HTML is invalid' do
+          Logger.logger.should_receive(:error).with(/ERROR/i, /http/).at_least(1)
+          Models::GameAr.should_receive(:get_for_reviews_updating).and_return([])
+          Scrappers::ReviewsScrapper.any_instance.should_receive(:scrap).and_raise(Scrappers::InvalidHTML)
+          overlord.scrap_reviews
+        end
 
-      it 'should send an email if the HTML is invalid' do
-        Models::GameAr.should_receive(:get_for_reviews_updating).and_return([])
-        Scrappers::ReviewsScrapper.any_instance.should_receive(:scrap).and_raise(Scrappers::InvalidHTML)
-        Mail::TestMailer.deliveries.should be_empty
-        overlord.scrap_reviews
-        Mail::TestMailer.deliveries.should_not be_empty
+        it 'should send an email if the HTML is invalid' do
+          Models::GameAr.should_receive(:get_for_reviews_updating).and_return([])
+          Scrappers::ReviewsScrapper.any_instance.should_receive(:scrap).and_raise(Scrappers::InvalidHTML)
+          Mail::TestMailer.deliveries.should be_empty
+          overlord.scrap_reviews
+          Mail::TestMailer.deliveries.should_not be_empty
+        end
+
+        it 'should send an email from the configured email' do
+          Models::GameAr.should_receive(:get_for_reviews_updating).and_return([])
+          Scrappers::ReviewsScrapper.any_instance.should_receive(:scrap).and_raise(Scrappers::InvalidHTML)
+          Mail::TestMailer.deliveries.should be_empty
+          PtbScrapper.setup do |config|
+            config.notifications_email_from = 'foo@bar.com'
+          end
+          overlord.scrap_reviews
+          Mail::TestMailer.deliveries.first.from.should eq ['foo@bar.com']
+        end
+
+        it 'should send an email to the configured email' do
+          Models::GameAr.should_receive(:get_for_reviews_updating).and_return([])
+          Scrappers::ReviewsScrapper.any_instance.should_receive(:scrap).and_raise(Scrappers::InvalidHTML)
+          Mail::TestMailer.deliveries.should be_empty
+          PtbScrapper.setup do |config|
+            config.notifications_email_to = 'foo@bar.com'
+          end
+          overlord.scrap_reviews
+          Mail::TestMailer.deliveries.first.to.should eq ['foo@bar.com']
+        end
       end
     end
 

@@ -114,6 +114,34 @@ describe PtbScrapper::Scrappers::ReviewsScrapper do
       end
     end
 
+    context 'there are more than maximum amount of reviews' do
+      it 'stops after 1000 reviews' do
+        game = build :game_ar
+        scrapper = build_scrapper [game]
+        stub_page klass.url(game.steam_app_id), 'reviews_single_page'
+        a_thousand_reviews = {positive: [1,2,3,4,5,6,7,8,9,10]*50, negative: [1,2,3,4,5,6,7,8,9,10]*50}
+        more_than_a_thousand_reviews =  {positive: [1,2,3,4,5,6,7,8,9,10]*75, negative: [1,2,3,4,5,6,7,8,9,10]*75}
+        scrapper.stub(:parse_page).and_return a_thousand_reviews, more_than_a_thousand_reviews
+        scrapper.scrap
+        game.reviews.size.should eq 1000
+      end
+
+      it 'stops after 1500 reviews if configured like that' do
+        PtbScrapper.setup do |config|
+          config.max_reviews = 1500
+        end
+        game = build :game_ar
+        scrapper = build_scrapper [game]
+        stub_page klass.url(game.steam_app_id), 'reviews_single_page'
+        stub_page klass.url(game.steam_app_id, 2), 'reviews_single_page'
+        a_thousand_reviews = {positive: [1,2,3,4,5,6,7,8,9,10]*50, negative: [1,2,3,4,5,6,7,8,9,10]*50}
+        more_than_a_thousand_reviews =  {positive: [1,2,3,4,5,6,7,8,9,10]*75, negative: [1,2,3,4,5,6,7,8,9,10]*75}
+        scrapper.stub(:parse_page).and_return a_thousand_reviews, more_than_a_thousand_reviews
+        scrapper.scrap
+        game.reviews.size.should eq 1500
+      end
+    end
+
     context 'there is a review flagged as abusive' do
       it 'should ignore it' do
         game = build :game_ar

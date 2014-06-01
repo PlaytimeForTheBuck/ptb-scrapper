@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'fakefs/spec_helpers'
 
 module PtbScrapper
-  describe Logger, focus: true do
+  describe Logger do
     include FakeFS::SpecHelpers
     it 'should log the thing to the log file' do
       Dir.glob('log_directory/test*').size.should eq 0
