@@ -4,6 +4,8 @@ require 'time'
 module PtbScrapper
   module Models
     class GameAr < ActiveRecord::Base
+      extend FlagsAttributes
+
       self.table_name = 'games'
 
       alias_attribute :steam_app_id, :id
@@ -206,6 +208,14 @@ module PtbScrapper
         end
       end
 
+      OS_FLAGS = {
+        windows: 0b001,
+        osx: 0b010,
+        linux: 0b100
+      }
+
+      flags_attribute :os, :os_flags
+
       ########## Time Update Methods ##########
       #########################################
 
@@ -230,6 +240,7 @@ module PtbScrapper
         attrs.delete(:negative_reviews)
         attrs.delete(:positive_reviews)
         attrs.delete(:id)
+        attrs.delete(:os_flags)
         attrs[:positive_reviews_length] = positive_reviews.size
         attrs[:negative_reviews_length] = negative_reviews.size
         attrs[:min_time] = min_time
@@ -244,6 +255,7 @@ module PtbScrapper
         attrs[:reviews_updated_at] = reviews_updated_at.to_i*1000
         attrs[:game_list_updated_at] = game_list_updated_at.to_i*1000
         attrs[:launch_date] = launch_date.to_i*1000
+        attrs[:os] = os_flags
 
         attrs
       end

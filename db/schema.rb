@@ -9,11 +9,11 @@
 # from scratch. The latter is a flawed and unsustainable approach (the more migrations
 # you'll amass, the slower it'll run and the greater likelihood for issues).
 #
-# It's strongly recommended to check this file into your version control system.
+# It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140528022536) do
+ActiveRecord::Schema.define(version: 20140608220605) do
 
-  create_table "games", :force => true do |t|
+  create_table "games", force: true do |t|
     t.string   "name"
     t.datetime "launch_date"
     t.integer  "meta_score"
@@ -25,15 +25,16 @@ ActiveRecord::Schema.define(:version => 20140528022536) do
     t.datetime "game_list_updated_at"
     t.datetime "game_updated_at"
     t.text     "categories"
+    t.integer  "os_flags",             default: 0, null: false
   end
 
-  create_table "prices", :force => true do |t|
+  create_table "prices", force: true do |t|
     t.datetime "date"
     t.float    "price"
     t.float    "sale_price"
     t.integer  "game_id"
   end
 
-  add_index "prices", ["game_id"], :name => "index_prices_on_game_id"
+  add_index "prices", ["game_id"], name: "index_prices_on_game_id"
 
 end
