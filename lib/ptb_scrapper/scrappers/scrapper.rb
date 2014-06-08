@@ -128,7 +128,7 @@ module PtbScrapper
           response = Net::HTTP.new(uri.host, uri.port).start do |http|
             http.request(request)
           end
-        rescue Timeout::Error => e
+        rescue Errno::ETIMEDOUT, Timeout::Error => e
           logger.warn e.class.inspect
           seconds = 10 + (10 - retriesLimit)*3
           logger.warn 'NO SERVER CONNECTION! Retrying in 10 seconds'
