@@ -96,14 +96,26 @@ module PtbScrapper
       scrapper.subjects
     end
 
-    def create_summary(games = @games_class.get_for_summary)
+    def create_summary
+      games = @games_class.get_for_summary
+      os_flags = @games_class::OS_FLAGS
+      flags = {}
+      tags = {}
+
+      data = {
+        games: games,
+        os_flags: os_flags,
+        flags: flags,
+        tags: tags
+      }
+
       file_path = File.dirname(@file_name)
       FileUtils.mkpath file_path if not File.directory? file_path
 
       @file = File.open @file_name, 'w'
       @file.truncate 0
       @file.rewind
-      @file.write games.to_json
+      @file.write data.to_json
       @file.close
 
       logger.info "Generated summary file!"

@@ -129,11 +129,11 @@ module PtbScrapper
         Models::GameAr.should_receive(:get_for_summary).and_return(games)
         overlord.create_summary
         file_attr = JSON.parse File.read('tmp/db/games.json'), symbolize_names: true
-        file_attr.sort! {|h| h[:steam_app_id]}
+        file_attr[:games].sort! {|h| h[:steam_app_id]}
         games_json = games.to_json
         games_attr = JSON.parse games_json, symbolize_names: true
         games_attr.sort! {|h| h[:steam_app_id]}
-        file_attr.size.should eq games_attr.size
+        file_attr[:games].size.should eq games_attr.size
       end
     end
   end
