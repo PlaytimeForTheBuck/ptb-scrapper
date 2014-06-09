@@ -209,8 +209,8 @@ module PtbScrapper
       end
 
       OS_FLAGS = {
-        windows: 0b001,
-        osx: 0b010,
+        win: 0b001,
+        mac: 0b010,
         linux: 0b100
       }
 

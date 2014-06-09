@@ -91,14 +91,14 @@ module PtbScrapper
           game.os.should eq []
         end
 
-        it 'should be Windows if set to windows' do
-          game.os = [:windows]
-          game.os.should eq [:windows]
+        it 'should be Windows if set to win' do
+          game.os = [:win]
+          game.os.should eq [:win]
         end
 
-        it 'should be OSX if set to osx' do
-          game.os = [:osx]
-          game.os.should eq [:osx]
+        it 'should be Mac if set to mac' do
+          game.os = [:mac]
+          game.os.should eq [:mac]
         end
 
         it 'should be Linux if set to linux' do
@@ -107,13 +107,13 @@ module PtbScrapper
         end
 
         it 'should accept multiple OSs' do
-          game.os = [:windows, :linux]
-          game.os.should eq [:windows, :linux]
+          game.os = [:win, :linux]
+          game.os.should eq [:win, :linux]
         end
 
         it 'should ignore unknown OSs' do
-          game.os = [:windows, :linux, :potato]
-          game.os.should eq [:windows, :linux]
+          game.os = [:win, :linux, :potato]
+          game.os.should eq [:win, :linux]
         end
       end
 
@@ -123,12 +123,12 @@ module PtbScrapper
         end
 
         it 'should be 0b001 if set to windows' do
-          game.os = [:windows]
+          game.os = [:win]
           game.os_flags.should eq 0b001
         end
 
-        it 'should be 0b010 if set to osx' do
-          game.os = [:osx]
+        it 'should be 0b010 if set to mac' do
+          game.os = [:mac]
           game.os_flags.should eq 0b010
         end
 
@@ -138,15 +138,26 @@ module PtbScrapper
         end
 
         it 'should be 0b101 if set to Windows and Linux' do
-          game.os = [:windows, :linux]
+          game.os = [:win, :linux]
           game.os_flags.should eq 0b101
         end
 
         it 'should ignore unknown OSs' do
-          game.os = [:windows, :linux, :potato]
+          game.os = [:win, :linux, :potato]
           game.os_flags.should eq 0b101
         end
       end
+
+      # describe '#available' do
+      #   it 'should be true by default' do
+      #     game.available.should eq true
+      #   end
+
+      #   it 'should be a regular boolean attribute' do
+      #     game.available = false
+      #     game.available.should eq false
+      #   end
+      # end
 
       describe 'update bang methods!' do
         describe '#update_game!' do
@@ -600,12 +611,12 @@ module PtbScrapper
         end
 
         it 'should return #os as #os_flags' do
-          game.os = [:windows, :osx]
+          game.os = [:win, :mac]
           game.summary_attrs[:os].should eq game.os_flags
         end
 
-        it 'should not return an #os_flags parameter' do
-          game.os = [:windows, :osx]
+        it 'should not return an #os_flags attribute' do
+          game.os = [:win, :mac]
           game.summary_attrs.should_not have_key :os_flags
         end
       end

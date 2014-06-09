@@ -10,7 +10,7 @@ module PtbScrapper
         end
 
         define_method "#{attr_name}=" do |symbol_flags|
-          write_attribute flags_attr_name, symbol_flags.map{|f| flags_list[f]}.compact.reduce(:|)
+          write_attribute flags_attr_name, symbol_flags.map{|f| flags_list[f]}.compact.reduce(:|) || 0
         end
       end
     end

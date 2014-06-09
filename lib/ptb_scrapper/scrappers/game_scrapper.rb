@@ -20,28 +20,41 @@ module PtbScrapper
           return nil
         end
 
-        script_tags = doc.search('script')
+        data = {
+          tags: nil,
+          os: []
+        }
 
-        data = nil
+        # Tags
+        script_tags = doc.search('script')
 
         script_tags.each do |script_tag|
           if script_tag.text =~ /InitAppTagModal/
             tags_array = script_tag.text.scan(/"tagid":[0-9]+,"name":"([^"]+)"/).flatten
-            data = tags_array
+            data[:tags] = tags_array
           end
         end
 
-        if data.nil?
+        if data[:tags].nil?
           raise InvalidHTML
         end
+
+        # Operative Systems
+
+        data[:os].push :win if doc.search('.platform_img.win').first != nil
+        data[:os].push :mac if doc.search('.platform_img.mac').first != nil
+        data[:os].push :linux if doc.search('.platform_img.linux').first != nil
 
         data
       end
 
-      def save_data(tags_array, game)
-        game.categories = tags_array
-        game.update_game!
-        queue_save game
+      def save_data(data, game)
+        if data
+          game.categories = data[:tags]
+          game.os = data[:os]
+          game.update_game!
+          queue_save game
+        end
         yield(game) if block_given?
       end
 

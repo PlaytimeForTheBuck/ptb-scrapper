@@ -12,6 +12,7 @@ class PtbScrapperMigration < ActiveRecord::Migration
       t.datetime :game_list_updated_at
       t.datetime :game_updated_at
       t.text :categories
+      t.integer :os_flags, null: false, default: 0
     end
 
     create_table :prices do |t|

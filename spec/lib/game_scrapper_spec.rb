@@ -33,6 +33,41 @@ describe PtbScrapper::Scrappers::GameScrapper do
                                    '4X', 'Timesink', 'Historic', 'Singleplayer']
       end
 
+      describe 'operative system' do
+        it 'reads the OS as windows correctly' do
+          game = build :game_ar 
+          stub_game_request(game, 'game_os_win')
+          scrapper = build_scrapper [game]
+          scrapper.scrap
+          game.os.should eq [:win]
+        end
+
+        it 'reads the OS as windows & linux correctly' do
+          game = build :game_ar 
+          stub_game_request(game, 'game_os_win_linux')
+          scrapper = build_scrapper [game]
+          scrapper.scrap
+          game.os.should eq [:win, :linux]
+        end
+
+        it 'reads the OS as windows & mac & linux correctly' do
+          game = build :game_ar 
+          stub_game_request(game, 'game_os_win_osx_linux')
+          scrapper = build_scrapper [game]
+          scrapper.scrap
+          game.os.should eq [:win, :mac, :linux]
+        end
+
+        it "should set the OS to an empty array if it doesn't have any OS" do
+          game = build :game_ar
+          game.os = [:win]
+          stub_game_request(game, 'game_os_empty')
+          scrapper = build_scrapper [game]
+          scrapper.scrap
+          game.os.should eq []
+        end
+      end
+
       it 'updates the #game_updated_at attribute' do
         time_now = Time.now
         game = build :game_ar
