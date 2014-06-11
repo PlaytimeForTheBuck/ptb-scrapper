@@ -136,7 +136,7 @@ module PtbScrapper
         begin
           uri = URI url
           request = Net::HTTP::Get.new(uri)
-          request.add_field 'Cookie', 'birthtime=724320001' # +18 games won't redirect you
+          request.add_field 'Cookie', 'birthtime=724320001; fakeCC=US' # +18 games won't redirect you
           response = Net::HTTP.new(uri.host, uri.port).start do |http|
             http.request(request)
           end

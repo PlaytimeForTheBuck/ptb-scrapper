@@ -14,7 +14,7 @@ module PtbScrapper
         self.class.url(game.steam_app_id)
       end
 
-      def parse_page(reviews, params)
+      def parse_page(_, params)
         doc = params[:doc]
 
         e_error = doc.search('.error').first
