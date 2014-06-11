@@ -521,6 +521,19 @@ module PtbScrapper
       end
 
 
+      describe '.expire_games' do
+        it 'should set all the #game_updated_at to nil' do
+          game1 = build :game_ar
+          game2 = build :game_ar
+          game1.game_updated_at = Time.now
+          game2.game_updated_at = Time.now
+          game1.save!
+          game2.save!
+          GameAr.expire_games
+          GameAr.all.first.game_updated_at.should eq nil
+          GameAr.all.last.game_updated_at.should eq nil
+        end
+      end
 
       describe '#to_json' do
         it 'should return a json object of the game summary attributes' do

@@ -27,6 +27,13 @@ namespace :scrapper do
     scrapper.create_summary
   end
 
+  namespace :expire do
+    desc 'Expire games'
+    task games: :environment do
+      PtbScrapper::Models::GameAr.expire_games
+    end
+  end
+
   desc 'Create migration files'
   task :migrations do
     migration_name = Time.now.strftime('%Y%m%d%H%M%S') + '_ptb_scrapper_migration.rb'

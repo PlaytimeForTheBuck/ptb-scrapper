@@ -109,6 +109,10 @@ module PtbScrapper
         #   end
         # end
       end
+
+      def self.expire_games
+        update_all(game_updated_at: nil)
+      end
      
       ########## Validations ##########
       #################################
