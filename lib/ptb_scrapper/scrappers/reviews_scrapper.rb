@@ -15,7 +15,10 @@ module PtbScrapper
         "http://steamcommunity.com/app/#{app_id}/homecontent/?l=english&userreviewsoffset=#{offset}&p=#{page}&itemspage=2&screenshotspage=2&videospage=2&artpage=2&allguidepage=2&webguidepage=2&integratedguidepage=2&discussionspage=2&appHubSubSection=10&browsefilter=toprated&filterLanguage=default&searchText="
       end
 
-      def parse_page(doc, game, reviews)
+      def parse_page(reviews, params)
+        doc = params[:doc]
+        game = params[:group]
+
         reviews = reviews || { positive: [], negative: [] }
 
         doc.search('.apphub_Card').each do |e_review|

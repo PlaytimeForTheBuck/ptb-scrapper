@@ -18,7 +18,9 @@ module PtbScrapper
 
       private
 
-      def parse_page(doc, group, group_data)
+      def parse_page(group_data, params)
+        doc = params[:doc]
+
         data = []
         doc.search('.search_result_row').each do |a|
           begin

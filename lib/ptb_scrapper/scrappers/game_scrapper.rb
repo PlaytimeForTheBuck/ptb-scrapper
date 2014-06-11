@@ -14,7 +14,9 @@ module PtbScrapper
         self.class.url(game.steam_app_id)
       end
 
-      def parse_page(doc, game, reviews)
+      def parse_page(reviews, params)
+        doc = params[:doc]
+
         e_error = doc.search('.error').first
         if not e_error.nil? and e_error.text == 'This item is currently unavailable in your region'
           return nil
@@ -36,7 +38,7 @@ module PtbScrapper
         end
 
         if data[:tags].nil?
-          raise InvalidHTML
+          invalid_html! params, "Couldn't find any tag"
         end
 
         # Operative Systems

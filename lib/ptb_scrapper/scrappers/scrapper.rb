@@ -96,9 +96,17 @@ module PtbScrapper
                 raw_page = get_page(url)
                 doc = Nokogiri::HTML raw_page
 
+                scrapping_params = {
+                  url: url,
+                  index: index,
+                  group: group,
+                  raw_page: raw_page,
+                  doc: doc
+                }
+
                 finish = ! keep_scrapping_before?(doc)
                 if not finish
-                  group_data = parse_page(doc, group, group_data, &block)
+                  group_data = parse_page(group_data, scrapping_params, &block)
                   save_data(group_data, group, &block)
 
                   finish = ! keep_scrapping_after?(doc, group_data)
@@ -191,6 +199,14 @@ module PtbScrapper
       def add_subject(subject)
        @subjects.push subject
        @subjects_by_id[subject.id] = subject
+      end
+
+      def invalid_subject!(params, subject)
+
+      end
+
+      def invalid_html!(params, message = '')
+        raise InvalidHTML.new(message, params[:url], params[:raw_page])
       end
     end
   end

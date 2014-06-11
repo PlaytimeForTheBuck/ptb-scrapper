@@ -89,8 +89,8 @@ module PtbScrapper
           logger.info "#{game_name} - #{pagination} - Categories: #{categories} - #{counter}/#{games.size}"
         end
       rescue Scrappers::InvalidHTML => e
-        logger.error 'ERROR: Invalid HTML!', scrapper.last_page_url
-        send_error_email e, scrapper.last_page, scrapper.last_page_url
+        logger.error "ERROR: Invalid HTML! #{e.message} #{e.url}"
+        send_error_email e, e.html, e.url
       end
 
       scrapper.subjects

@@ -105,15 +105,15 @@ module PtbScrapper
       end
 
       it 'loads the games from Game and calls GameScrapper' do
-        Logger.logger.should_receive(:error).with(/ERROR/i, /http/).at_least(1)
+        Logger.logger.should_receive(:error).with(/ERROR.*http/).at_least(1)
         Models::GameAr.should_receive(:get_for_games_updating).and_return([])
-        Scrappers::GameScrapper.any_instance.should_receive(:scrap).and_raise(Scrappers::InvalidHTML)
+        Scrappers::GameScrapper.any_instance.should_receive(:scrap).and_raise(Scrappers::InvalidHTML.new('MahError', 'http://caca.com', '<html></html>'))
         overlord.scrap_games
       end
 
       it 'should send an email if the HTML is invalid' do
         Models::GameAr.should_receive(:get_for_games_updating).and_return([])
-        Scrappers::GameScrapper.any_instance.should_receive(:scrap).and_raise(Scrappers::InvalidHTML)
+        Scrappers::GameScrapper.any_instance.should_receive(:scrap).and_raise(Scrappers::InvalidHTML.new('MahError', 'http://caca.com', '<html></html>'))
         Mail::TestMailer.deliveries.should be_empty
         overlord.scrap_games
         Mail::TestMailer.deliveries.should_not be_empty
