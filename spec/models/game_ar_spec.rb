@@ -148,6 +148,39 @@ module PtbScrapper
         end
       end
 
+      describe '#features' do 
+        [:single_player,
+        :co_op,
+        :achievements,
+        :cloud,
+        :cards,
+        :controller,
+        :partial_controller,
+        :oculus,
+        :stats,
+        :workshop,
+        :captions,
+        :commentary,
+        :level_editor,
+        :vac,
+        :vr,
+        :leaderboards].each do |flag|
+          it "should accept #{flag}" do
+            game.features_flags.should eq 0
+            game.features = [flag]
+            game.features_flags.to_s(2).scan(/1/).size.should eq 1
+            game.features.should eq [flag]
+          end
+        end
+
+        it 'should accept multiple flags' do
+          game.features_flags.should eq 0
+          game.features = [:achievements, :cloud, :cards]
+          game.features_flags.to_s(2).scan(/1/).size.should eq 3
+          game.features.should eq [:achievements, :cloud, :cards]
+        end
+      end
+
       # describe '#available' do
       #   it 'should be true by default' do
       #     game.available.should eq true

@@ -220,6 +220,27 @@ module PtbScrapper
 
       flags_attribute :os, :os_flags
 
+      FEATURES_FLAGS = {
+        single_player: 0b1,
+        co_op: 0b10,
+        achievements: 0b100,
+        cloud: 0b1000,
+        cards: 0b10000,
+        controller: 0b100000,
+        partial_controller: 0b1000000,
+        oculus: 0b10000000,
+        stats: 0b100000000,
+        workshop: 0b1000000000,
+        captions: 0b10000000000,
+        commentary: 0b100000000000,
+        level_editor: 0b1000000000000,
+        vac: 0b10000000000000,
+        vr: 0b100000000000000,
+        leaderboards: 0b1000000000000000
+      }
+
+      flags_attribute :features, :features_flags
+
       ########## Time Update Methods ##########
       #########################################
 
