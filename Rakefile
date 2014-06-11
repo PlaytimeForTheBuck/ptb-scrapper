@@ -14,4 +14,11 @@ task :focus do
   exec 'guard --force_polling -g focus_rspec'
 end
 
+desc 'Console with the environment loaded'
+task :c do
+  require 'irb'
+  ARGV.clear
+  IRB.start
+end
+
 task default: :test

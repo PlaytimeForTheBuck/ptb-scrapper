@@ -94,25 +94,29 @@ module PtbScrapper
               finish = true if not url
               if not finish
                 raw_page = get_page(url)
-                doc = Nokogiri::HTML raw_page
+                if raw_page != -1
+                  doc = Nokogiri::HTML raw_page
 
-                scrapping_params = {
-                  url: url,
-                  index: index,
-                  group: group,
-                  raw_page: raw_page,
-                  doc: doc
-                }
+                  scrapping_params = {
+                    url: url,
+                    index: index,
+                    group: group,
+                    raw_page: raw_page,
+                    doc: doc
+                  }
 
-                finish = ! keep_scrapping_before?(doc)
-                if not finish
-                  group_data = parse_page(group_data, scrapping_params, &block)
-                  save_data(group_data, group, &block)
-
-                  finish = ! keep_scrapping_after?(doc, group_data)
+                  finish = ! keep_scrapping_before?(doc)
                   if not finish
-                    index += 1
+                    group_data = parse_page(group_data, scrapping_params, &block)
+                    save_data(group_data, group, &block)
+
+                    finish = ! keep_scrapping_after?(doc, group_data)
+                    if not finish
+                      index += 1
+                    end
                   end
+                else
+                  finish = true
                 end
               end
             end
@@ -146,7 +150,13 @@ module PtbScrapper
 
         case response
         when Net::HTTPSuccess then response.body
-        when Net::HTTPRedirection then get_page(response['location'], redirectLimit - 1, retriesLimit)
+        when Net::HTTPRedirection then
+          # TODO: Think of something better
+          if response['location'] =~ /\/app\//
+            get_page(response['location'], redirectLimit - 1, retriesLimit)
+          else
+            return -1
+          end
         else
           raise UnexpectedResponse
         end
