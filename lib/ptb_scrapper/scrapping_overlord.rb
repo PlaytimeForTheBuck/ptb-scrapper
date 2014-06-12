@@ -103,11 +103,13 @@ module PtbScrapper
       tags = {}
 
       data = {
-        games: games,
-        os_flags: os_flags,
-        features_flags: features_flags,
+        games: games.map(&:summary_attrs),
+        osFlags: camelize_hash(os_flags),
+        featuresFlags: camelize_hash(features_flags),
         tags: tags
       }
+
+      data[:games].each{ |g| camelize_hash! g }
 
       file_path = File.dirname(@file_name)
       FileUtils.mkpath file_path if not File.directory? file_path
@@ -122,6 +124,25 @@ module PtbScrapper
     end
 
     private
+
+    def camelize_hash(hash)
+      camelize_hash! hash.dup
+    end
+
+    # TODO: Move this to a separate class
+    def camelize_hash!(hash)
+      hash.keys.each do |k|
+        new_key = camelize_key(k.to_s)
+        new_key = new_key.to_sym if k.is_a? Symbol
+        hash[new_key] = hash.delete(k)
+      end
+      hash
+    end
+
+    def camelize_key(str)
+      str = str.split('_').map {|w| w.capitalize}.join
+      str[0, 1].downcase + str[1..-1]
+    end
 
     def send_error_email(exception, faulty_page, faulty_page_url)
       time = Time.now.strftime '%Y-%m-%d.%H-%M-%S'

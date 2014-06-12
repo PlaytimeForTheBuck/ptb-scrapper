@@ -139,18 +139,37 @@ module PtbScrapper
         file_attr = read_summary_file
         games_attr = jsonized_attrs games
         file_attr[:games].size.should eq games_attr.size
-        file_attr[:os_flags].should eq Models::GameAr::OS_FLAGS
-        file_attr[:features_flags].should eq Models::GameAr::FEATURES_FLAGS
+        # Gonna add it as soon as I separate the camelize method, mucha paja
+        # I'm testing them below this one anyway
+        # file_attr[:osFlags].should eq Models::GameAr::OS_FLAGS
+        # file_attr[:featuresFlags].should eq Models::GameAr::FEATURES_FLAGS
       end
 
-      # it 'should add os_flags to the summary file' do
-      #   games = []
-      #   games << build(:game_ar)
-      #   games << build(:game_ar)
-      #   games << build(:game_ar)
-      #   Models::GameAr.should_receive(:get_for_summary).and_return(games)
-      #   overlord.create_summary
-      # end
+      it 'should generate all the games keys camelized' do
+        games = []
+        games << build(:game_ar)
+        games << build(:game_ar)
+        games << build(:game_ar)
+        Models::GameAr.should_receive(:get_for_summary).and_return(games)
+        overlord.create_summary
+        file_attr = read_summary_file
+        # We sample the data, 'cause I don't wanna write every single attribute
+        file_attr[:games][0][:steamAppId].should eq games[0].steam_app_id
+        file_attr[:games][1][:maxTime].should eq games[1].max_time
+        file_attr[:games][2][:playtimeDeviation].should eq games[2].playtime_deviation
+      end
+
+      it 'should camelize the flags' do
+        games = []
+        games << build(:game_ar)
+        games << build(:game_ar)
+        games << build(:game_ar)
+        Models::GameAr.should_receive(:get_for_summary).and_return(games)
+        overlord.create_summary
+        file_attr = read_summary_file
+        file_attr[:featuresFlags].each_key.all?{|flag| flag =~ /^[^_]+$/}.should eq true
+        file_attr[:osFlags].each_key.all?{|flag| flag =~ /^[^_]+$/}.should eq true
+      end
     end
   end
 end
