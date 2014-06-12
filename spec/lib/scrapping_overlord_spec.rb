@@ -121,6 +121,14 @@ module PtbScrapper
     end
 
     describe '#create_summary' do 
+      def read_summary_file
+        JSON.parse File.read('tmp/db/games.json'), symbolize_names: true
+      end
+
+      def jsonized_attrs(games)
+        JSON.parse games.to_json, symbolize_names: true
+      end
+
       it 'should generate the summary file' do
         games = []
         games << build(:game_ar)
@@ -128,13 +136,21 @@ module PtbScrapper
         games << build(:game_ar)
         Models::GameAr.should_receive(:get_for_summary).and_return(games)
         overlord.create_summary
-        file_attr = JSON.parse File.read('tmp/db/games.json'), symbolize_names: true
-        file_attr[:games].sort! {|h| h[:steam_app_id]}
-        games_json = games.to_json
-        games_attr = JSON.parse games_json, symbolize_names: true
-        games_attr.sort! {|h| h[:steam_app_id]}
+        file_attr = read_summary_file
+        games_attr = jsonized_attrs games
         file_attr[:games].size.should eq games_attr.size
+        file_attr[:os_flags].should eq Models::GameAr::OS_FLAGS
+        file_attr[:features_flags].should eq Models::GameAr::FEATURES_FLAGS
       end
+
+      # it 'should add os_flags to the summary file' do
+      #   games = []
+      #   games << build(:game_ar)
+      #   games << build(:game_ar)
+      #   games << build(:game_ar)
+      #   Models::GameAr.should_receive(:get_for_summary).and_return(games)
+      #   overlord.create_summary
+      # end
     end
   end
 end

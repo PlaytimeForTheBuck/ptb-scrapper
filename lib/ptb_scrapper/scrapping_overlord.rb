@@ -99,13 +99,13 @@ module PtbScrapper
     def create_summary
       games = @games_class.get_for_summary
       os_flags = @games_class::OS_FLAGS
-      flags = {}
+      features_flags = @games_class::FEATURES_FLAGS
       tags = {}
 
       data = {
         games: games,
         os_flags: os_flags,
-        flags: flags,
+        features_flags: features_flags,
         tags: tags
       }
 

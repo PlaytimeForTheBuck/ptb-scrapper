@@ -60,11 +60,53 @@ describe PtbScrapper::Scrappers::GameScrapper do
 
         it "should set the OS to an empty array if it doesn't have any OS" do
           game = build :game_ar
-          game.os = [:win]
+          game.os = [:win]    
           stub_game_request(game, 'game_os_empty')
           scrapper = build_scrapper [game]
           scrapper.scrap
           game.os.should eq []
+        end
+      end
+
+      describe 'features' do
+        it 'reads achievements, multi-player, stats, vac, partial controller, cards and workshop' do
+          game = build :game_ar 
+          stub_game_request(game, 'game_features_multi_player_achievements_stats_vac_partial_controller_cards_workshop')
+          scrapper = build_scrapper [game]
+          scrapper.scrap
+          game.features.should include :multi_player, :achievements, :stats, :vac, :partial_controller, :cards, :workshop
+        end
+
+        it 'reads commentary, captions, vr, level editor' do
+          game = build :game_ar 
+          stub_game_request(game, 'game_features_commentary_captions_vr_level_editor')
+          scrapper = build_scrapper [game]
+          scrapper.scrap
+          game.features.should include :commentary, :captions, :vr, :level_editor
+        end
+
+        it 'reads leaderboard, full controller support' do
+          game = build :game_ar 
+          stub_game_request(game, 'game_features_leaderboards_controller')
+          scrapper = build_scrapper [game]
+          scrapper.scrap
+          game.features.should include :leaderboards, :controller
+        end
+
+        it 'reads cloud, co-op, single-player' do
+          game = build :game_ar 
+          stub_game_request(game, 'game_features_cloud_coop_single_player')
+          scrapper = build_scrapper [game]
+          scrapper.scrap
+          game.features.should include :cloud, :co_op, :single_player
+        end
+
+        it 'sets partial controller support if the game has full controller support' do
+          game = build :game_ar 
+          stub_game_request(game, 'game_features_leaderboards_controller')
+          scrapper = build_scrapper [game]
+          scrapper.scrap
+          game.features.should include :leaderboards, :controller, :partial_controller
         end
       end
 

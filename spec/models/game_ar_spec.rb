@@ -150,13 +150,13 @@ module PtbScrapper
 
       describe '#features' do 
         [:single_player,
+        :multi_player,
         :co_op,
         :achievements,
         :cloud,
         :cards,
         :controller,
         :partial_controller,
-        :oculus,
         :stats,
         :workshop,
         :captions,
