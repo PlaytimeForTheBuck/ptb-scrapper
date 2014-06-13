@@ -266,6 +266,7 @@ module PtbScrapper
         attrs.delete(:positive_reviews)
         attrs.delete(:id)
         attrs.delete(:os_flags)
+        attrs.delete(:features_flags)
         attrs[:positive_reviews_length] = positive_reviews.size
         attrs[:negative_reviews_length] = negative_reviews.size
         attrs[:min_time] = min_time
@@ -281,6 +282,7 @@ module PtbScrapper
         attrs[:game_list_updated_at] = game_list_updated_at.to_i*1000
         attrs[:launch_date] = launch_date.to_i*1000
         attrs[:os] = os_flags
+        attrs[:features] = features_flags
 
         attrs
       end

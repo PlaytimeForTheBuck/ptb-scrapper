@@ -665,6 +665,16 @@ module PtbScrapper
           game.os = [:win, :mac]
           game.summary_attrs.should_not have_key :os_flags
         end
+
+        it 'should return #features as #features_flags' do
+          game.features = [:vr, :multi_player]
+          game.summary_attrs[:features].should eq game.features_flags
+        end
+
+        it 'should not return an #features_flags attribute' do
+          game.features = [:vr, :multi_player]
+          game.summary_attrs.should_not have_key :features_flags
+        end
       end
     end
   end
