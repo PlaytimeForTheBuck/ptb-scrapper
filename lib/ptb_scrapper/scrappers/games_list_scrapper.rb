@@ -27,19 +27,19 @@ module PtbScrapper
             attrs = {}
 
             # Get the name
-            attrs[:name] = read_name(a)
+            attrs[:name] = read_name(a, params)
 
             # Get Steam App ID
-            attrs[:steam_app_id] = read_steam_app_id(a)
+            attrs[:steam_app_id] = read_steam_app_id(a, params)
 
             # Get the release date
-            attrs[:launch_date] = read_release_date(a)
+            attrs[:launch_date] = read_release_date(a, params)
 
             # Get the meta score
-            attrs[:meta_score] = read_meta_score(a)
+            attrs[:meta_score] = read_meta_score(a, params)
 
             # Get the prices
-            attrs[:price], attrs[:sale_price] = read_prices(a)
+            attrs[:price], attrs[:sale_price] = read_prices(a, params)
 
             data.push attrs
           rescue InvalidGame => e
@@ -77,13 +77,13 @@ module PtbScrapper
         e_next_page.content == '>>'
       end
 
-      def read_name(a)
+      def read_name(a, params)
         e_name = a.search('.search_name h4').first
         raise InvalidHTML if e_name.nil?
         e_name.content.strip
       end
 
-      def read_steam_app_id(a)
+      def read_steam_app_id(a, params)
         steam_app_id = a['href']
         raise InvalidHTML if steam_app_id.blank? 
         steam_app_id = steam_app_id.match(/app\/([0-9]+)/)
@@ -91,7 +91,7 @@ module PtbScrapper
         steam_app_id[1].to_i
       end
 
-      def read_release_date(a)
+      def read_release_date(a, params)
         e_release_date = a.search('.search_released').first
         raise InvalidHTML if e_release_date.nil?
         release_date = e_release_date.content
@@ -108,7 +108,7 @@ module PtbScrapper
         release_date
       end
 
-      def read_meta_score(a)
+      def read_meta_score(a, params)
         e_meta_score   = a.search('.search_metascore').first
         raise InvalidHTML if e_meta_score.nil?
         meta_score = e_meta_score.content
@@ -122,16 +122,21 @@ module PtbScrapper
         meta_score
       end
 
-      def read_prices(a)
+      def read_prices(a, params)
         e_price_container = a.search('.search_price')
-        raise InvalidHTML if e_price_container.size != 1
+        if e_price_container.size != 1
+          invalid_html! params, 'Could not find price container'
+        end
         e_previous_price = e_price_container.search('strike')
         in_sale = (e_previous_price.size == 1)
         # In sale format
         if in_sale
           price = e_previous_price.first.content.sub('$', '')
-          sale_price = e_price_container.first.content.match(/[0-9.]+$/)
-          raise InvalidHTML if sale_price == nil
+          sale_price = e_price_container.first.inner_html.match(/[^$>;]+\Z/m)
+          if sale_price == nil
+            invalid_html! params, "Game on sale, but cannot read sale price!" +
+                                  "\n#{e_price_container.first.content}"
+          end
           sale_price = sale_price[0]
         # In regular format
         else
@@ -145,14 +150,14 @@ module PtbScrapper
         raise InvalidGame if price =~ /demo/i
 
         means_its_free = ['free to play', 'play for free', 'free', 'third party']
-        price = 0 if price =~ /free/i or means_its_free.include? price
+        price = 0 if price =~ /free/i or means_its_free.include? price or price.blank?
         sale_price = nil if sale_price =~ /free/i or means_its_free.include? sale_price
 
         begin
-          price = price.blank? ? nil : Float(price)
-          sale_price = sale_price.blank? ? nil : Float(sale_price)
+          price = Float(price)
+          sale_price = Float(sale_price) unless sale_price.nil?
         rescue => e
-          raise InvalidHTML, "Invalid price #{price}, #{sale_price}"
+          invalid_html! params, "Invalid price: #{e_price_container.first.inner_html}"
         end
 
         return price, sale_price

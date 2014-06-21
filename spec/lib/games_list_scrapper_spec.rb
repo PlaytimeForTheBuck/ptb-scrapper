@@ -181,6 +181,15 @@ module PtbScrapper
           scrapper = build_scrapper []
           expect { |b| scrapper.scrap(&b) }.to yield_control.exactly(3).times
         end
+
+        it 'should bla bla bla' do
+          stub_page GamesListScrapper.url(1), 'games_page_100_with_conflicting_html'
+          stub_page GamesListScrapper.url(2), 'games_single_empty'
+
+          scrapper = build_scrapper []
+          scrapper.scrap
+          scrapper.subjects.size.should eq 24
+        end
       end
 
       describe '#games' do
