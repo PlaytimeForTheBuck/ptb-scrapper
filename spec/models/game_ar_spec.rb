@@ -651,6 +651,28 @@ module PtbScrapper
           game.summary_attrs[:negative_reviews_length].should eq 3
         end
 
+        context 'reviews size <= 5' do
+          it 'should return with #average_time null' do
+            game.positive_reviews = [1,2,3,4,5]
+            game.summary_attrs[:average_time].should eq nil
+          end
+
+          it 'should return with #playtime_deviation null' do
+            game.positive_reviews = [1,2,3,4,5]
+            game.summary_attrs[:playtime_deviation].should eq nil
+          end
+
+          it 'should return with #average_time_positive null' do
+            game.positive_reviews = [1,2,3,4,5]
+            game.summary_attrs[:average_time_positive].should eq nil
+          end
+
+          it 'should return with #average_time_negative null' do
+            game.positive_reviews = [1,2,3,4,5]
+            game.summary_attrs[:average_time_negative].should eq nil
+          end
+        end
+
         it 'should return with max and min time' do
           game.summary_attrs.should have_key :max_time
           game.summary_attrs.should have_key :min_time

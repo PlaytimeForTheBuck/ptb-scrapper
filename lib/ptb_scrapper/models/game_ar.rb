@@ -276,10 +276,10 @@ module PtbScrapper
         attrs[:negative_reviews_length] = negative_reviews.size
         attrs[:min_time] = min_time
         attrs[:max_time] = max_time
-        attrs[:average_time_positive] = average_time_positive ? average_time_negative.round(2) : nil
-        attrs[:average_time_negative] = average_time_negative ? average_time_negative.round(2) : nil
-        attrs[:average_time] = average_time ? average_time.round(2) : nil
-        attrs[:playtime_deviation] = playtime_deviation ? playtime_deviation.round(4) : nil
+        attrs[:average_time_positive] = (average_time_positive and reviews.size > 5)? average_time_negative.round(2) : nil
+        attrs[:average_time_negative] = (average_time_negative and reviews.size > 5) ? average_time_negative.round(2) : nil
+        attrs[:average_time] = (average_time and reviews.size > 5) ? average_time.round(2) : nil
+        attrs[:playtime_deviation] = (playtime_deviation and reviews.size > 5) ? playtime_deviation.round(4) : nil
         attrs[:categories] = categories
         attrs[:steam_app_id] = id
         attrs[:game_updated_at] = game_updated_at.to_i*1000
