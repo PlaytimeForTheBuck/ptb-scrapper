@@ -6,7 +6,7 @@ module PtbScrapper
     class GameAr < ActiveRecord::Base
       extend FlagsAttributes
 
-      PLAYTIME_DEVIATION_PERCENTAGE = 0.2
+      PLAYTIME_DEVIATION_PERCENTAGE = 0.25
 
       self.table_name = 'games'
 
@@ -276,10 +276,10 @@ module PtbScrapper
         attrs[:negative_reviews_length] = negative_reviews.size
         attrs[:min_time] = min_time
         attrs[:max_time] = max_time
-        attrs[:average_time_positive] = average_time_positive
-        attrs[:average_time_negative] = average_time_negative
-        attrs[:average_time] = average_time
-        attrs[:playtime_deviation] = playtime_deviation
+        attrs[:average_time_positive] = average_time_positive ? average_time_negative.round(2) : nil
+        attrs[:average_time_negative] = average_time_negative ? average_time_negative.round(2) : nil
+        attrs[:average_time] = average_time ? average_time.round(2) : nil
+        attrs[:playtime_deviation] = playtime_deviation ? playtime_deviation.round(4) : nil
         attrs[:categories] = categories
         attrs[:steam_app_id] = id
         attrs[:game_updated_at] = game_updated_at.to_i*1000
