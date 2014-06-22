@@ -6,6 +6,8 @@ module PtbScrapper
     class GameAr < ActiveRecord::Base
       extend FlagsAttributes
 
+      PLAYTIME_DEVIATION_PERCENTAGE = 0.2
+
       self.table_name = 'games'
 
       alias_attribute :steam_app_id, :id
@@ -208,7 +210,10 @@ module PtbScrapper
         if self.reviews.empty?
           nil
         else
-          Math.sqrt(self.reviews.map{|x| x**2}.reduce(:+) / self.reviews.size)
+          avg = average_time
+          p = PLAYTIME_DEVIATION_PERCENTAGE
+          reviews.select{|x| x < avg*(1+p) and x > avg*(1-p)}.size / Float(reviews.size)
+          # Math.sqrt(self.reviews.map{|x| x**2}.reduce(:+) / self.reviews.size) / average_time - 1
         end
       end
 

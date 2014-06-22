@@ -362,10 +362,55 @@ module PtbScrapper
               game.min_time.should eq 1
             end
 
-            it "#playtime_deviation returns deviation math stuff" do
-              game.positive_reviews = [100,100,100]
-              game.negative_reviews = [1,1,1]
-              game.playtime_deviation.should eq Math.sqrt((100*100+100*100+100*100+1*1+1*1+1*1)/6)
+            describe '#playtime_deviation returns the chance you have of being 20% between the average playtime' do
+              describe 'No reviews fall into the category' do
+                it 'returns 0' do
+                  game.positive_reviews = [6, 6, 6]
+                  game.negative_reviews = [1, 1, 1]
+                  # Average is 3.5
+                  # -20% average is 2.8
+                  # +20% average is 4.2
+                  # No reviews fall inside that, therefore, it should be 0
+                  game.playtime_deviation.should eq 0
+                end
+              end
+
+              describe 'Some reviews fall into the category' do
+                it 'returns 1 out of 7 reviews' do
+                  game.positive_reviews = [6, 6, 6, 4]
+                  game.negative_reviews = [1, 1, 1]
+                  # Average is 3.57143
+                  # -20% average is 2.85714
+                  # +20% average is 4.28571
+                  # One review fall that, therefore, it should be 1/7 = 14.28%
+                  game.playtime_deviation.should eq 1/7.0
+                end
+
+                it 'returns 2 out of 8 reviews' do
+                  game.positive_reviews = [6, 6, 6, 4]
+                  game.negative_reviews = [1, 1, 1, 3]
+                  # Average is 3.5
+                  # -20% average is 2.8
+                  # +20% average is 4.2
+                  # One review fall that, therefore, it should be 2/8 = 25%
+                  game.playtime_deviation.should eq 2/8.0
+                end
+              end
+
+              describe 'All reviews fall into the category' do
+                it 'returns 100% when the reviews are all the same' do
+                  game.positive_reviews = [3,3,3,3]
+                  game.negative_reviews = [3,3,3,3]
+                  game.playtime_deviation.should eq 1
+                end
+
+                it 'returns 100% when the reviews are all different but within the 20% anyway' do
+                  game.positive_reviews = [51,52,53,54,55]
+                  game.positive_reviews = [56,57,58,59,60]
+                  game.playtime_deviation.should eq  1
+                end
+              end
+
             end
           end
         end
