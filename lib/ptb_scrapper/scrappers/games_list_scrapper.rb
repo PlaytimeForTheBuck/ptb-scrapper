@@ -133,6 +133,7 @@ module PtbScrapper
         if in_sale
           price = e_previous_price.first.content.sub('$', '')
           sale_price = e_price_container.first.inner_html.match(/[^$>;]+\Z/m)
+
           if sale_price == nil
             invalid_html! params, "Game on sale, but cannot read sale price!" +
                                   "\n#{e_price_container.first.content}"
@@ -146,12 +147,13 @@ module PtbScrapper
         end
 
         raise InvalidGame if price.nil?
-        price = price.downcase.gsub(/[^a-z0-9. ]/, ' ').gsub(/\s+/, ' ').strip
+        price = clean_price price
+        sale_price = clean_price sale_price
         raise InvalidGame if price =~ /demo/i
 
-        means_its_free = ['free to play', 'play for free', 'free', 'third party']
+        means_its_free = ['free to play', 'play for free', 'free', 'third party', 'open weekend']
         price = 0 if price =~ /free/i or means_its_free.include? price or price.blank?
-        sale_price = nil if sale_price =~ /free/i or means_its_free.include? sale_price
+        sale_price = 0 if sale_price =~ /free/i or means_its_free.include? sale_price
 
         begin
           price = Float(price)
@@ -161,6 +163,10 @@ module PtbScrapper
         end
 
         return price, sale_price
+      end
+
+      def clean_price(price)
+        price.downcase.gsub(/[^a-z0-9. ]/, ' ').gsub(/\s+/, ' ').strip unless price.blank?
       end
     end
   end

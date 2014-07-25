@@ -107,9 +107,18 @@ module PtbScrapper
 
           it 'should not raise any error with Third-party' do
              stub_page GamesListScrapper.url, 'games_single_page_third_party_price'
-              scrapper = build_scrapper []
-              scrapper.scrap
-              scrapper.subjects.size.should eq 25
+             scrapper = build_scrapper []
+             scrapper.scrap
+             scrapper.subjects.size.should eq 25
+          end
+        end
+
+        context 'open weekend' do
+          it 'should mark it as free' do
+            stub_page GamesListScrapper.url, 'games_single_page_open_weekend'
+            scrapper = build_scrapper []
+            scrapper.scrap
+            scrapper.subjects.size.should eq 24
           end
         end
 

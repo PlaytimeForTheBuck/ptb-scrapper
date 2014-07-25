@@ -139,6 +139,5 @@ describe PtbScrapper::Scrappers::GameScrapper do
         -> {scrapper.scrap}.should raise_error PtbScrapper::Scrappers::InvalidHTML
       end
     end
-
   end
 end
