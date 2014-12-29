@@ -36,7 +36,7 @@ module PtbScrapper
             attrs[:launch_date] = read_release_date(a, params)
 
             # Get the meta score
-            attrs[:meta_score] = read_meta_score(a, params)
+            # attrs[:meta_score] = read_meta_score(a, params)
 
             # Get the prices
             attrs[:price], attrs[:sale_price] = read_prices(a, params)
@@ -74,11 +74,11 @@ module PtbScrapper
       def keep_scrapping_after?(doc, group_data)
         e_next_page = doc.search('.search_pagination_right a').last
         raise InvalidHTML if e_next_page.nil?
-        e_next_page.content == '>>'
+        e_next_page.content == '>'
       end
 
       def read_name(a, params)
-        e_name = a.search('.search_name h4').first
+        e_name = a.search('.search_name .title').first
         raise InvalidHTML if e_name.nil?
         e_name.content.strip
       end
