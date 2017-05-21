@@ -1,3 +1,7 @@
+## Deprecated
+
+Inspired by the essence of this project I created [GGFilter.com](http://ggfilter.com/), which has similar goals of helping you find games, but with a greater scope and infrastructure.
+
 ### DB Scrapper for PlaytimeForTheBuck
 
 This database scrapper sails across the Ste*m oceans and picks up information about the games.
